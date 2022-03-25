@@ -50,7 +50,7 @@ func MustNewEventStore(config NewEventStoreInput) *EventStore {
 	return &e
 }
 
-// Create will insert a new events into the database, if the database is not available the event will be saved to disk
+// Create will insert new events into the database, if the database is not available the events will be saved to disk
 // and a retry will be attempted later.  An error is only returned if the insert failed as well as writing the file to
 // disk.  This could happen because the disk is full or other IO errors
 func (s *EventStore) Create(ctx context.Context, events []models.Event) error {
