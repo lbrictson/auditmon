@@ -19,3 +19,6 @@ vendor/
 
 # Ignore default database
 auditmon.db
+
+# Ignore test data files
+test_data/*.json

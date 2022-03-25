@@ -48,3 +48,30 @@ Generated fields:
 ### Configuring Auditmon
 
 Auditmon is configured through a configuration file as well as environment variables.  A sample configuration file is available in config/auditmon.yaml
+
+By default, Auditmon will look for a configuration file at `config/auditmon.yaml`, you may specify a different path with `-c path/to/config.yaml`
+
+Each section of the configuration file can be overridden with an environment variable like the below
+
+```
+database:
+  username: postgres
+ 
+export AUDITMON_DATABASE_USERNAME="notPostgres"
+```
+
+The pattern to follow for environment variables is `AUDITMON_$CONFIG_SECTION_CONFIG_ITEM`
+
+
+### Developing Locally
+
+Auditmon can be run without any modification locally by running 
+
+`go run cmd/server/main.go`
+
+If you would like to use postgres instead of sqlite3 you can start a postgres server using the docker command below and have Auditmon connect to it
+
+```
+docker run -it -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=auditmon -p 5432:5432 docker.io/postgres:14
+AUDITMON_DATABASE_BACKEND=postgres go run cmd/server/main.go
+```
