@@ -142,6 +142,13 @@ func ReadOnly(v bool) predicate.Event {
 	})
 }
 
+// EventSource applies equality check predicate on the "event_source" field. It's identical to EventSourceEQ.
+func EventSource(v string) predicate.Event {
+	return predicate.Event(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldEventSource), v))
+	})
+}
+
 // EventTimeEQ applies the EQ predicate on the "event_time" field.
 func EventTimeEQ(v time.Time) predicate.Event {
 	return predicate.Event(func(s *sql.Selector) {
@@ -784,6 +791,117 @@ func ReadOnlyEQ(v bool) predicate.Event {
 func ReadOnlyNEQ(v bool) predicate.Event {
 	return predicate.Event(func(s *sql.Selector) {
 		s.Where(sql.NEQ(s.C(FieldReadOnly), v))
+	})
+}
+
+// EventSourceEQ applies the EQ predicate on the "event_source" field.
+func EventSourceEQ(v string) predicate.Event {
+	return predicate.Event(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldEventSource), v))
+	})
+}
+
+// EventSourceNEQ applies the NEQ predicate on the "event_source" field.
+func EventSourceNEQ(v string) predicate.Event {
+	return predicate.Event(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldEventSource), v))
+	})
+}
+
+// EventSourceIn applies the In predicate on the "event_source" field.
+func EventSourceIn(vs ...string) predicate.Event {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Event(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldEventSource), v...))
+	})
+}
+
+// EventSourceNotIn applies the NotIn predicate on the "event_source" field.
+func EventSourceNotIn(vs ...string) predicate.Event {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Event(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldEventSource), v...))
+	})
+}
+
+// EventSourceGT applies the GT predicate on the "event_source" field.
+func EventSourceGT(v string) predicate.Event {
+	return predicate.Event(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldEventSource), v))
+	})
+}
+
+// EventSourceGTE applies the GTE predicate on the "event_source" field.
+func EventSourceGTE(v string) predicate.Event {
+	return predicate.Event(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldEventSource), v))
+	})
+}
+
+// EventSourceLT applies the LT predicate on the "event_source" field.
+func EventSourceLT(v string) predicate.Event {
+	return predicate.Event(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldEventSource), v))
+	})
+}
+
+// EventSourceLTE applies the LTE predicate on the "event_source" field.
+func EventSourceLTE(v string) predicate.Event {
+	return predicate.Event(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldEventSource), v))
+	})
+}
+
+// EventSourceContains applies the Contains predicate on the "event_source" field.
+func EventSourceContains(v string) predicate.Event {
+	return predicate.Event(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldEventSource), v))
+	})
+}
+
+// EventSourceHasPrefix applies the HasPrefix predicate on the "event_source" field.
+func EventSourceHasPrefix(v string) predicate.Event {
+	return predicate.Event(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldEventSource), v))
+	})
+}
+
+// EventSourceHasSuffix applies the HasSuffix predicate on the "event_source" field.
+func EventSourceHasSuffix(v string) predicate.Event {
+	return predicate.Event(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldEventSource), v))
+	})
+}
+
+// EventSourceEqualFold applies the EqualFold predicate on the "event_source" field.
+func EventSourceEqualFold(v string) predicate.Event {
+	return predicate.Event(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldEventSource), v))
+	})
+}
+
+// EventSourceContainsFold applies the ContainsFold predicate on the "event_source" field.
+func EventSourceContainsFold(v string) predicate.Event {
+	return predicate.Event(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldEventSource), v))
 	})
 }
 

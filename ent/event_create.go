@@ -109,6 +109,12 @@ func (ec *EventCreate) SetEventData(m map[string]interface{}) *EventCreate {
 	return ec
 }
 
+// SetEventSource sets the "event_source" field.
+func (ec *EventCreate) SetEventSource(s string) *EventCreate {
+	ec.mutation.SetEventSource(s)
+	return ec
+}
+
 // SetID sets the "id" field.
 func (ec *EventCreate) SetID(u uuid.UUID) *EventCreate {
 	ec.mutation.SetID(u)
@@ -246,6 +252,9 @@ func (ec *EventCreate) check() error {
 	if _, ok := ec.mutation.EventData(); !ok {
 		return &ValidationError{Name: "event_data", err: errors.New(`ent: missing required field "Event.event_data"`)}
 	}
+	if _, ok := ec.mutation.EventSource(); !ok {
+		return &ValidationError{Name: "event_source", err: errors.New(`ent: missing required field "Event.event_source"`)}
+	}
 	return nil
 }
 
@@ -345,6 +354,14 @@ func (ec *EventCreate) createSpec() (*Event, *sqlgraph.CreateSpec) {
 			Column: event.FieldEventData,
 		})
 		_node.EventData = value
+	}
+	if value, ok := ec.mutation.EventSource(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: event.FieldEventSource,
+		})
+		_node.EventSource = value
 	}
 	return _node, _spec
 }

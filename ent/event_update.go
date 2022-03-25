@@ -116,6 +116,12 @@ func (eu *EventUpdate) SetEventData(m map[string]interface{}) *EventUpdate {
 	return eu
 }
 
+// SetEventSource sets the "event_source" field.
+func (eu *EventUpdate) SetEventSource(s string) *EventUpdate {
+	eu.mutation.SetEventSource(s)
+	return eu
+}
+
 // Mutation returns the EventMutation object of the builder.
 func (eu *EventUpdate) Mutation() *EventMutation {
 	return eu.mutation
@@ -249,6 +255,13 @@ func (eu *EventUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: event.FieldEventData,
 		})
 	}
+	if value, ok := eu.mutation.EventSource(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: event.FieldEventSource,
+		})
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, eu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{event.Label}
@@ -353,6 +366,12 @@ func (euo *EventUpdateOne) SetNillableReadOnly(b *bool) *EventUpdateOne {
 // SetEventData sets the "event_data" field.
 func (euo *EventUpdateOne) SetEventData(m map[string]interface{}) *EventUpdateOne {
 	euo.mutation.SetEventData(m)
+	return euo
+}
+
+// SetEventSource sets the "event_source" field.
+func (euo *EventUpdateOne) SetEventSource(s string) *EventUpdateOne {
+	euo.mutation.SetEventSource(s)
 	return euo
 }
 
@@ -511,6 +530,13 @@ func (euo *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error
 			Type:   field.TypeJSON,
 			Value:  value,
 			Column: event.FieldEventData,
+		})
+	}
+	if value, ok := euo.mutation.EventSource(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: event.FieldEventSource,
 		})
 	}
 	_node = &Event{config: euo.config}

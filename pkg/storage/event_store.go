@@ -81,7 +81,8 @@ func (s *EventStore) Create(ctx context.Context, events []models.Event) error {
 			SetResource(events[i].Resource).
 			SetUsername(events[i].Username).
 			SetRequestID(events[i].RequestID).
-			SetSourceIP(events[i].SourceIPAddress)
+			SetSourceIP(events[i].SourceIPAddress).
+			SetEventSource(events[i].EventSource)
 	}
 	_, err := s.client.Event.CreateBulk(bulk...).Save(ctx)
 	if err != nil {

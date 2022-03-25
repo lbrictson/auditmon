@@ -44,6 +44,7 @@ type EventMutation struct {
 	request_id    *string
 	read_only     *bool
 	event_data    *map[string]interface{}
+	event_source  *string
 	clearedFields map[string]struct{}
 	done          bool
 	oldValue      func(context.Context) (*Event, error)
@@ -442,6 +443,42 @@ func (m *EventMutation) ResetEventData() {
 	m.event_data = nil
 }
 
+// SetEventSource sets the "event_source" field.
+func (m *EventMutation) SetEventSource(s string) {
+	m.event_source = &s
+}
+
+// EventSource returns the value of the "event_source" field in the mutation.
+func (m *EventMutation) EventSource() (r string, exists bool) {
+	v := m.event_source
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEventSource returns the old "event_source" field's value of the Event entity.
+// If the Event object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EventMutation) OldEventSource(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldEventSource is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldEventSource requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEventSource: %w", err)
+	}
+	return oldValue.EventSource, nil
+}
+
+// ResetEventSource resets all changes to the "event_source" field.
+func (m *EventMutation) ResetEventSource() {
+	m.event_source = nil
+}
+
 // Where appends a list predicates to the EventMutation builder.
 func (m *EventMutation) Where(ps ...predicate.Event) {
 	m.predicates = append(m.predicates, ps...)
@@ -461,7 +498,7 @@ func (m *EventMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *EventMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 9)
 	if m.event_time != nil {
 		fields = append(fields, event.FieldEventTime)
 	}
@@ -485,6 +522,9 @@ func (m *EventMutation) Fields() []string {
 	}
 	if m.event_data != nil {
 		fields = append(fields, event.FieldEventData)
+	}
+	if m.event_source != nil {
+		fields = append(fields, event.FieldEventSource)
 	}
 	return fields
 }
@@ -510,6 +550,8 @@ func (m *EventMutation) Field(name string) (ent.Value, bool) {
 		return m.ReadOnly()
 	case event.FieldEventData:
 		return m.EventData()
+	case event.FieldEventSource:
+		return m.EventSource()
 	}
 	return nil, false
 }
@@ -535,6 +577,8 @@ func (m *EventMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldReadOnly(ctx)
 	case event.FieldEventData:
 		return m.OldEventData(ctx)
+	case event.FieldEventSource:
+		return m.OldEventSource(ctx)
 	}
 	return nil, fmt.Errorf("unknown Event field %s", name)
 }
@@ -599,6 +643,13 @@ func (m *EventMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetEventData(v)
+		return nil
+	case event.FieldEventSource:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetEventSource(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Event field %s", name)
@@ -672,6 +723,9 @@ func (m *EventMutation) ResetField(name string) error {
 		return nil
 	case event.FieldEventData:
 		m.ResetEventData()
+		return nil
+	case event.FieldEventSource:
+		m.ResetEventSource()
 		return nil
 	}
 	return fmt.Errorf("unknown Event field %s", name)

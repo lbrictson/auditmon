@@ -29,6 +29,8 @@ const (
 	FieldReadOnly = "read_only"
 	// FieldEventData holds the string denoting the event_data field in the database.
 	FieldEventData = "event_data"
+	// FieldEventSource holds the string denoting the event_source field in the database.
+	FieldEventSource = "event_source"
 	// Table holds the table name of the event in the database.
 	Table = "events"
 )
@@ -44,6 +46,7 @@ var Columns = []string{
 	FieldRequestID,
 	FieldReadOnly,
 	FieldEventData,
+	FieldEventSource,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).

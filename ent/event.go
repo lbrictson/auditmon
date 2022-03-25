@@ -34,6 +34,8 @@ type Event struct {
 	ReadOnly bool `json:"read_only,omitempty"`
 	// EventData holds the value of the "event_data" field.
 	EventData map[string]interface{} `json:"event_data,omitempty"`
+	// EventSource holds the value of the "event_source" field.
+	EventSource string `json:"event_source,omitempty"`
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -45,7 +47,7 @@ func (*Event) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = new([]byte)
 		case event.FieldReadOnly:
 			values[i] = new(sql.NullBool)
-		case event.FieldEventName, event.FieldUsername, event.FieldResource, event.FieldSourceIP, event.FieldRequestID:
+		case event.FieldEventName, event.FieldUsername, event.FieldResource, event.FieldSourceIP, event.FieldRequestID, event.FieldEventSource:
 			values[i] = new(sql.NullString)
 		case event.FieldEventTime:
 			values[i] = new(sql.NullTime)
@@ -122,6 +124,12 @@ func (e *Event) assignValues(columns []string, values []interface{}) error {
 					return fmt.Errorf("unmarshal field event_data: %w", err)
 				}
 			}
+		case event.FieldEventSource:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field event_source", values[i])
+			} else if value.Valid {
+				e.EventSource = value.String
+			}
 		}
 	}
 	return nil
@@ -166,6 +174,8 @@ func (e *Event) String() string {
 	builder.WriteString(fmt.Sprintf("%v", e.ReadOnly))
 	builder.WriteString(", event_data=")
 	builder.WriteString(fmt.Sprintf("%v", e.EventData))
+	builder.WriteString(", event_source=")
+	builder.WriteString(e.EventSource)
 	builder.WriteByte(')')
 	return builder.String()
 }
