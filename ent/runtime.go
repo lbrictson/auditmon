@@ -37,6 +37,10 @@ func init() {
 	eventDescReadOnly := eventFields[7].Descriptor()
 	// event.DefaultReadOnly holds the default value on creation for the read_only field.
 	event.DefaultReadOnly = eventDescReadOnly.Default.(bool)
+	// eventDescEventSource is the schema descriptor for event_source field.
+	eventDescEventSource := eventFields[9].Descriptor()
+	// event.DefaultEventSource holds the default value on creation for the event_source field.
+	event.DefaultEventSource = eventDescEventSource.Default.(string)
 	// eventDescID is the schema descriptor for id field.
 	eventDescID := eventFields[0].Descriptor()
 	// event.DefaultID holds the default value on creation for the id field.

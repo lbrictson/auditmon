@@ -27,7 +27,7 @@ func (Event) Fields() []ent.Field {
 		field.String("request_id").Default("-"),
 		field.Bool("read_only").Default(false),
 		field.JSON("event_data", make(map[string]interface{})),
-		field.String("event_source"),
+		field.String("event_source").Default("auditmon_internal"),
 	}
 }
 

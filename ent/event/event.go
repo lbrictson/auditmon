@@ -70,6 +70,8 @@ var (
 	DefaultRequestID string
 	// DefaultReadOnly holds the default value on creation for the "read_only" field.
 	DefaultReadOnly bool
+	// DefaultEventSource holds the default value on creation for the "event_source" field.
+	DefaultEventSource string
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )

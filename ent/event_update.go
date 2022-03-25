@@ -122,6 +122,14 @@ func (eu *EventUpdate) SetEventSource(s string) *EventUpdate {
 	return eu
 }
 
+// SetNillableEventSource sets the "event_source" field if the given value is not nil.
+func (eu *EventUpdate) SetNillableEventSource(s *string) *EventUpdate {
+	if s != nil {
+		eu.SetEventSource(*s)
+	}
+	return eu
+}
+
 // Mutation returns the EventMutation object of the builder.
 func (eu *EventUpdate) Mutation() *EventMutation {
 	return eu.mutation
@@ -372,6 +380,14 @@ func (euo *EventUpdateOne) SetEventData(m map[string]interface{}) *EventUpdateOn
 // SetEventSource sets the "event_source" field.
 func (euo *EventUpdateOne) SetEventSource(s string) *EventUpdateOne {
 	euo.mutation.SetEventSource(s)
+	return euo
+}
+
+// SetNillableEventSource sets the "event_source" field if the given value is not nil.
+func (euo *EventUpdateOne) SetNillableEventSource(s *string) *EventUpdateOne {
+	if s != nil {
+		euo.SetEventSource(*s)
+	}
 	return euo
 }
 

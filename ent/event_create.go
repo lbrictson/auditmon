@@ -115,6 +115,14 @@ func (ec *EventCreate) SetEventSource(s string) *EventCreate {
 	return ec
 }
 
+// SetNillableEventSource sets the "event_source" field if the given value is not nil.
+func (ec *EventCreate) SetNillableEventSource(s *string) *EventCreate {
+	if s != nil {
+		ec.SetEventSource(*s)
+	}
+	return ec
+}
+
 // SetID sets the "id" field.
 func (ec *EventCreate) SetID(u uuid.UUID) *EventCreate {
 	ec.mutation.SetID(u)
@@ -219,6 +227,10 @@ func (ec *EventCreate) defaults() {
 	if _, ok := ec.mutation.ReadOnly(); !ok {
 		v := event.DefaultReadOnly
 		ec.mutation.SetReadOnly(v)
+	}
+	if _, ok := ec.mutation.EventSource(); !ok {
+		v := event.DefaultEventSource
+		ec.mutation.SetEventSource(v)
 	}
 	if _, ok := ec.mutation.ID(); !ok {
 		v := event.DefaultID()

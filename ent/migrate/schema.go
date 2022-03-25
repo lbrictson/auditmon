@@ -19,7 +19,7 @@ var (
 		{Name: "request_id", Type: field.TypeString, Default: "-"},
 		{Name: "read_only", Type: field.TypeBool, Default: false},
 		{Name: "event_data", Type: field.TypeJSON},
-		{Name: "event_source", Type: field.TypeString},
+		{Name: "event_source", Type: field.TypeString, Default: "auditmon_internal"},
 	}
 	// EventsTable holds the schema information for the "events" table.
 	EventsTable = &schema.Table{
