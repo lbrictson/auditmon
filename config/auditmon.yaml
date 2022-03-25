@@ -1,0 +1,45 @@
+database:
+  backend: sqlite3 # sqlite3 or postgres
+  file: auditmon.db # only used for sqlite3, location of database file
+  host: localhost # ignored when in sqlite3 mode
+  port: 5432 # ignored when in sqlite3 mode
+  ssl_mode: prefer # ignored when in sqlite3 mode
+  username: postgres # ignored when in sqlite3 mode
+  password: postgres # ignored when in sqlite3 mode
+  name: auditmon # ignored when in sqlite3 mode, name of database within postgres
+
+settings:
+  retention_days: 365 # Number of days events are stored for, older events are permanently deleted
+  max_query_days: 30 # Max number of days to allow a user to query in the frontend, tune for database load
+
+durability:
+  buffer_location: tmp/ # this directory will contain audit events that failed to send and are awaiting retries
+  # For max durability it is highly recommended that this directory be persistent storage like AWS EFS or an EBS volume
+
+security:
+  enforce_mfa: true # Force all users to use MFA
+  min_password_length: 7 # Shortest password allowed
+  max_password_age_days: 90 # Force users to change password after this amount of days
+  max_password_reuse: 5 # Number of old passwords to track, new passwords cannot be the same as any old password
+  initial_user: admin@auditmon.net # Used to create a user if there are no users in the database
+  initial_password: Password1234! # Used to create a user if there are no users in the database
+  session_max_seconds: 86400 # How long before a user must re-auth with the web UI, default 1 day
+  max_failed_logins: 5 # Number of times a user can attempt to log in before being locked out
+  lockout_duration_seconds: 300 # Locked accounts unlock after this period of time, default 5 minutes
+
+server:
+  root_url: http://localhost:7984 # Change this to the URL you are hosting Auditmon at like https://example.com
+  port: 7984 # Port for server to run on, generally does not need to be changed
+
+metrics:
+  send_influx: false # controls if influxdb metrics are sent
+  influx_url: http://localhost:8086 # only used if send_influx is true
+  influx_user: admin # only used if send_influx is true
+  influx_password: admin # only used if send_influx is true
+  influx_db: default # only used if send_influx is true
+
+mailer:
+  from: noreply@localhost.com # From address for all email
+  backend: ses # Currently, only supports AWS SES
+  # the SES backend assumes you have default AWS environment variables set or are running on an instance with a role
+  # capable of sending to SES
