@@ -151,9 +151,43 @@ func (uc *UserCreate) SetNillableMfaSecret(s *string) *UserCreate {
 	return uc
 }
 
+// SetMfaSetupCompleted sets the "mfa_setup_completed" field.
+func (uc *UserCreate) SetMfaSetupCompleted(b bool) *UserCreate {
+	uc.mutation.SetMfaSetupCompleted(b)
+	return uc
+}
+
+// SetNillableMfaSetupCompleted sets the "mfa_setup_completed" field if the given value is not nil.
+func (uc *UserCreate) SetNillableMfaSetupCompleted(b *bool) *UserCreate {
+	if b != nil {
+		uc.SetMfaSetupCompleted(*b)
+	}
+	return uc
+}
+
 // SetRecentPasswords sets the "recent_passwords" field.
 func (uc *UserCreate) SetRecentPasswords(s []string) *UserCreate {
 	uc.mutation.SetRecentPasswords(s)
+	return uc
+}
+
+// SetMfaImage sets the "mfa_image" field.
+func (uc *UserCreate) SetMfaImage(b []byte) *UserCreate {
+	uc.mutation.SetMfaImage(b)
+	return uc
+}
+
+// SetTimezone sets the "timezone" field.
+func (uc *UserCreate) SetTimezone(s string) *UserCreate {
+	uc.mutation.SetTimezone(s)
+	return uc
+}
+
+// SetNillableTimezone sets the "timezone" field if the given value is not nil.
+func (uc *UserCreate) SetNillableTimezone(s *string) *UserCreate {
+	if s != nil {
+		uc.SetTimezone(*s)
+	}
 	return uc
 }
 
@@ -270,6 +304,10 @@ func (uc *UserCreate) defaults() {
 		v := user.DefaultLockedUntil
 		uc.mutation.SetLockedUntil(v)
 	}
+	if _, ok := uc.mutation.MfaSetupCompleted(); !ok {
+		v := user.DefaultMfaSetupCompleted
+		uc.mutation.SetMfaSetupCompleted(v)
+	}
 	if _, ok := uc.mutation.ID(); !ok {
 		v := user.DefaultID()
 		uc.mutation.SetID(v)
@@ -317,6 +355,9 @@ func (uc *UserCreate) check() error {
 	}
 	if _, ok := uc.mutation.LockedUntil(); !ok {
 		return &ValidationError{Name: "locked_until", err: errors.New(`ent: missing required field "User.locked_until"`)}
+	}
+	if _, ok := uc.mutation.MfaSetupCompleted(); !ok {
+		return &ValidationError{Name: "mfa_setup_completed", err: errors.New(`ent: missing required field "User.mfa_setup_completed"`)}
 	}
 	return nil
 }
@@ -442,6 +483,14 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		})
 		_node.MfaSecret = value
 	}
+	if value, ok := uc.mutation.MfaSetupCompleted(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: user.FieldMfaSetupCompleted,
+		})
+		_node.MfaSetupCompleted = value
+	}
 	if value, ok := uc.mutation.RecentPasswords(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeJSON,
@@ -449,6 +498,22 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Column: user.FieldRecentPasswords,
 		})
 		_node.RecentPasswords = value
+	}
+	if value, ok := uc.mutation.MfaImage(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeBytes,
+			Value:  value,
+			Column: user.FieldMfaImage,
+		})
+		_node.MfaImage = value
+	}
+	if value, ok := uc.mutation.Timezone(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: user.FieldTimezone,
+		})
+		_node.Timezone = value
 	}
 	return _node, _spec
 }

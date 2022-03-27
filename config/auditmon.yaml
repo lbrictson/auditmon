@@ -17,7 +17,6 @@ durability:
   # For max durability it is highly recommended that this directory be persistent storage like AWS EFS or an EBS volume
 
 security:
-  enforce_mfa: true # Force all users to use MFA
   min_password_length: 7 # Shortest password allowed
   max_password_age_days: 90 # Force users to change password after this amount of days
   max_password_reuse: 5 # Number of old passwords to track, new passwords cannot be the same as any old password
@@ -26,6 +25,7 @@ security:
   session_max_seconds: 86400 # How long before a user must re-auth with the web UI, default 1 day
   max_failed_logins: 5 # Number of times a user can attempt to log in before being locked out
   lockout_duration_seconds: 300 # Locked accounts unlock after this period of time, default 5 minutes
+  session_secret: "thisIsNotSafePleaseChangeIt"
 
 server:
   root_url: http://localhost:7984 # Change this to the URL you are hosting Auditmon at like https://example.com

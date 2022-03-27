@@ -1,0 +1,52 @@
+{{ define "new_mfa" }}
+    {{ template "no_auth_header" }}
+    <div class="container" style="padding-top: 5rem">
+        <div class="row">
+            <div class="col">
+            </div>
+            <div class="col">
+                <div class="card">
+                    <h5 class="card-title text-center" style="padding-top: 1rem">Setup MFA</h5>
+                    <div class="card-body">
+                        {{ if .ShowError }}
+                            <div class="alert alert-dismissible alert-danger">
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                <strong>Oh snap!</strong> Invalid MFA Code Entered
+                            </div>
+                        {{ end }}
+                        <p>Scan the QR code with your authenticator app</p>
+                        <div class="text-center">
+                        <img alt="qr code" src="data:image/png;base64,{{.QRImage}}">
+                        </div>
+                        <br>
+                        <p>Trouble scanning? Enter manually into your authenticator</p>
+                        <p>
+                        <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#mfaCodeReveal" aria-expanded="false" aria-controls="collapseExample">
+                            Show Code
+                        </button>
+                        </p>
+                        <div class="collapse" id="mfaCodeReveal">
+                            <div class="card card-body">
+                                {{.MFASecret}}
+                            </div>
+                        </div>
+                        <br>
+                        <form action="/form/new_mfa" method="post">
+                            <div class="mb-3">
+                                <label for="mfa_code" class="form-label">Enter MFA Code</label>
+                                <input type="number" class="form-control" id="mfa_code" name="mfa_code" aria-describedby="mfa_codeHelp" required autofocus>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col">
+            </div>
+        </div>
+    </div>
+    {{ template "no_auth_footer" }}
+{{ end }}

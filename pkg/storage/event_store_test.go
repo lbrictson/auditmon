@@ -8,6 +8,8 @@ import (
 	"testing"
 	"time"
 
+	"entgo.io/ent/dialect/sql/schema"
+
 	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/google/uuid"
@@ -21,7 +23,7 @@ func createEntInMemoryDatabaseClient() *ent.Client {
 	if err != nil {
 		panic(err)
 	}
-	err = client.Schema.Create(context.Background())
+	err = client.Schema.Create(context.Background(), schema.WithAtlas(true))
 	if err != nil {
 		panic(err)
 	}
@@ -52,7 +54,7 @@ func TestEventStore_Create(t *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				event: []models.Event{
-					models.Event{
+					{
 						EventName:       "TestEvent",
 						EventTime:       time.Now(),
 						Username:        "automated_testing",
@@ -78,7 +80,7 @@ func TestEventStore_Create(t *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				event: []models.Event{
-					models.Event{
+					{
 						EventName:       "TestEvent",
 						EventTime:       time.Now(),
 						Username:        "automated_testing",
@@ -154,7 +156,7 @@ func Test_saveEventToBufferDirectory(t *testing.T) {
 		{
 			name: "happy path save event to disk",
 			args: args{e: []models.Event{
-				models.Event{
+				{
 					EventID:         uu,
 					EventName:       "test_event",
 					EventTime:       time.Now(),
@@ -181,7 +183,10 @@ func Test_saveEventToBufferDirectory(t *testing.T) {
 				t.Errorf("saveEventToBufferDirectory() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			// Clean up tmp files
-			os.Remove(fmt.Sprintf("%v/%v.json", tt.args.directory, tt.args.fileID))
+			err := os.Remove(fmt.Sprintf("%v/%v.json", tt.args.directory, tt.args.fileID))
+			if err != nil {
+				t.Errorf("failed to clean tmp files %v", err)
+			}
 		})
 	}
 }

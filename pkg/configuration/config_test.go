@@ -35,7 +35,6 @@ func TestMustReadConfig(t *testing.T) {
 				},
 				Durability: DurabilityConfig{BufferLocation: "tmp/"},
 				Security: SecurityConfig{
-					EnforceMFA:             true,
 					MinPasswordLength:      7,
 					MaxPasswordAgeDays:     90,
 					MaxPasswordReuse:       5,
@@ -44,6 +43,7 @@ func TestMustReadConfig(t *testing.T) {
 					SessionMaxSeconds:      86400,
 					MaxFailedLogins:        5,
 					LockoutDurationSeconds: 300,
+					SessionSecret:          "thisIsNotSafePleaseChangeIt",
 				},
 				Server: ServerConfig{
 					RootURL: "http://localhost:7984",
@@ -107,7 +107,6 @@ func TestMustReadConfigWithEnvOverrides(t *testing.T) {
 				},
 				Durability: DurabilityConfig{BufferLocation: "tmp/"},
 				Security: SecurityConfig{
-					EnforceMFA:             false,
 					MinPasswordLength:      7,
 					MaxPasswordAgeDays:     90,
 					MaxPasswordReuse:       5,
@@ -116,6 +115,7 @@ func TestMustReadConfigWithEnvOverrides(t *testing.T) {
 					SessionMaxSeconds:      86400,
 					MaxFailedLogins:        5,
 					LockoutDurationSeconds: 300,
+					SessionSecret:          "thisIsNotSafePleaseChangeIt",
 				},
 				Server: ServerConfig{
 					RootURL: "http://localhost:7984",

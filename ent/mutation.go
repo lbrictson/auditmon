@@ -797,7 +797,10 @@ type UserMutation struct {
 	locked                *bool
 	locked_until          *time.Time
 	mfa_secret            *string
+	mfa_setup_completed   *bool
 	recent_passwords      *[]string
+	mfa_image             *[]byte
+	timezone              *string
 	clearedFields         map[string]struct{}
 	done                  bool
 	oldValue              func(context.Context) (*User, error)
@@ -1337,6 +1340,42 @@ func (m *UserMutation) ResetMfaSecret() {
 	delete(m.clearedFields, user.FieldMfaSecret)
 }
 
+// SetMfaSetupCompleted sets the "mfa_setup_completed" field.
+func (m *UserMutation) SetMfaSetupCompleted(b bool) {
+	m.mfa_setup_completed = &b
+}
+
+// MfaSetupCompleted returns the value of the "mfa_setup_completed" field in the mutation.
+func (m *UserMutation) MfaSetupCompleted() (r bool, exists bool) {
+	v := m.mfa_setup_completed
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMfaSetupCompleted returns the old "mfa_setup_completed" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldMfaSetupCompleted(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMfaSetupCompleted is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMfaSetupCompleted requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMfaSetupCompleted: %w", err)
+	}
+	return oldValue.MfaSetupCompleted, nil
+}
+
+// ResetMfaSetupCompleted resets all changes to the "mfa_setup_completed" field.
+func (m *UserMutation) ResetMfaSetupCompleted() {
+	m.mfa_setup_completed = nil
+}
+
 // SetRecentPasswords sets the "recent_passwords" field.
 func (m *UserMutation) SetRecentPasswords(s []string) {
 	m.recent_passwords = &s
@@ -1386,6 +1425,104 @@ func (m *UserMutation) ResetRecentPasswords() {
 	delete(m.clearedFields, user.FieldRecentPasswords)
 }
 
+// SetMfaImage sets the "mfa_image" field.
+func (m *UserMutation) SetMfaImage(b []byte) {
+	m.mfa_image = &b
+}
+
+// MfaImage returns the value of the "mfa_image" field in the mutation.
+func (m *UserMutation) MfaImage() (r []byte, exists bool) {
+	v := m.mfa_image
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMfaImage returns the old "mfa_image" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldMfaImage(ctx context.Context) (v []byte, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMfaImage is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMfaImage requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMfaImage: %w", err)
+	}
+	return oldValue.MfaImage, nil
+}
+
+// ClearMfaImage clears the value of the "mfa_image" field.
+func (m *UserMutation) ClearMfaImage() {
+	m.mfa_image = nil
+	m.clearedFields[user.FieldMfaImage] = struct{}{}
+}
+
+// MfaImageCleared returns if the "mfa_image" field was cleared in this mutation.
+func (m *UserMutation) MfaImageCleared() bool {
+	_, ok := m.clearedFields[user.FieldMfaImage]
+	return ok
+}
+
+// ResetMfaImage resets all changes to the "mfa_image" field.
+func (m *UserMutation) ResetMfaImage() {
+	m.mfa_image = nil
+	delete(m.clearedFields, user.FieldMfaImage)
+}
+
+// SetTimezone sets the "timezone" field.
+func (m *UserMutation) SetTimezone(s string) {
+	m.timezone = &s
+}
+
+// Timezone returns the value of the "timezone" field in the mutation.
+func (m *UserMutation) Timezone() (r string, exists bool) {
+	v := m.timezone
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTimezone returns the old "timezone" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldTimezone(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTimezone is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTimezone requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTimezone: %w", err)
+	}
+	return oldValue.Timezone, nil
+}
+
+// ClearTimezone clears the value of the "timezone" field.
+func (m *UserMutation) ClearTimezone() {
+	m.timezone = nil
+	m.clearedFields[user.FieldTimezone] = struct{}{}
+}
+
+// TimezoneCleared returns if the "timezone" field was cleared in this mutation.
+func (m *UserMutation) TimezoneCleared() bool {
+	_, ok := m.clearedFields[user.FieldTimezone]
+	return ok
+}
+
+// ResetTimezone resets all changes to the "timezone" field.
+func (m *UserMutation) ResetTimezone() {
+	m.timezone = nil
+	delete(m.clearedFields, user.FieldTimezone)
+}
+
 // Where appends a list predicates to the UserMutation builder.
 func (m *UserMutation) Where(ps ...predicate.User) {
 	m.predicates = append(m.predicates, ps...)
@@ -1405,7 +1542,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 12)
+	fields := make([]string, 0, 15)
 	if m.username != nil {
 		fields = append(fields, user.FieldUsername)
 	}
@@ -1439,8 +1576,17 @@ func (m *UserMutation) Fields() []string {
 	if m.mfa_secret != nil {
 		fields = append(fields, user.FieldMfaSecret)
 	}
+	if m.mfa_setup_completed != nil {
+		fields = append(fields, user.FieldMfaSetupCompleted)
+	}
 	if m.recent_passwords != nil {
 		fields = append(fields, user.FieldRecentPasswords)
+	}
+	if m.mfa_image != nil {
+		fields = append(fields, user.FieldMfaImage)
+	}
+	if m.timezone != nil {
+		fields = append(fields, user.FieldTimezone)
 	}
 	return fields
 }
@@ -1472,8 +1618,14 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.LockedUntil()
 	case user.FieldMfaSecret:
 		return m.MfaSecret()
+	case user.FieldMfaSetupCompleted:
+		return m.MfaSetupCompleted()
 	case user.FieldRecentPasswords:
 		return m.RecentPasswords()
+	case user.FieldMfaImage:
+		return m.MfaImage()
+	case user.FieldTimezone:
+		return m.Timezone()
 	}
 	return nil, false
 }
@@ -1505,8 +1657,14 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldLockedUntil(ctx)
 	case user.FieldMfaSecret:
 		return m.OldMfaSecret(ctx)
+	case user.FieldMfaSetupCompleted:
+		return m.OldMfaSetupCompleted(ctx)
 	case user.FieldRecentPasswords:
 		return m.OldRecentPasswords(ctx)
+	case user.FieldMfaImage:
+		return m.OldMfaImage(ctx)
+	case user.FieldTimezone:
+		return m.OldTimezone(ctx)
 	}
 	return nil, fmt.Errorf("unknown User field %s", name)
 }
@@ -1593,12 +1751,33 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetMfaSecret(v)
 		return nil
+	case user.FieldMfaSetupCompleted:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMfaSetupCompleted(v)
+		return nil
 	case user.FieldRecentPasswords:
 		v, ok := value.([]string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetRecentPasswords(v)
+		return nil
+	case user.FieldMfaImage:
+		v, ok := value.([]byte)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMfaImage(v)
+		return nil
+	case user.FieldTimezone:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTimezone(v)
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
@@ -1651,6 +1830,12 @@ func (m *UserMutation) ClearedFields() []string {
 	if m.FieldCleared(user.FieldRecentPasswords) {
 		fields = append(fields, user.FieldRecentPasswords)
 	}
+	if m.FieldCleared(user.FieldMfaImage) {
+		fields = append(fields, user.FieldMfaImage)
+	}
+	if m.FieldCleared(user.FieldTimezone) {
+		fields = append(fields, user.FieldTimezone)
+	}
 	return fields
 }
 
@@ -1670,6 +1855,12 @@ func (m *UserMutation) ClearField(name string) error {
 		return nil
 	case user.FieldRecentPasswords:
 		m.ClearRecentPasswords()
+		return nil
+	case user.FieldMfaImage:
+		m.ClearMfaImage()
+		return nil
+	case user.FieldTimezone:
+		m.ClearTimezone()
 		return nil
 	}
 	return fmt.Errorf("unknown User nullable field %s", name)
@@ -1712,8 +1903,17 @@ func (m *UserMutation) ResetField(name string) error {
 	case user.FieldMfaSecret:
 		m.ResetMfaSecret()
 		return nil
+	case user.FieldMfaSetupCompleted:
+		m.ResetMfaSetupCompleted()
+		return nil
 	case user.FieldRecentPasswords:
 		m.ResetRecentPasswords()
+		return nil
+	case user.FieldMfaImage:
+		m.ResetMfaImage()
+		return nil
+	case user.FieldTimezone:
+		m.ResetTimezone()
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)

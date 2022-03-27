@@ -1,9 +1,12 @@
 package auth
 
 import (
+	"bytes"
+	"image/png"
 	"math/rand"
 	"time"
 
+	"github.com/pquerna/otp/totp"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -25,4 +28,27 @@ func ComparePassword(plainTextPassword string, encryptedPassword string) bool {
 		return false
 	}
 	return true
+}
+
+type NewTOTPOutput struct {
+	ImageBytes []byte
+	Secret     string
+}
+
+func GenerateMFA(issuer string, username string) NewTOTPOutput {
+	key, _ := totp.Generate(totp.GenerateOpts{
+		Issuer:      issuer,
+		AccountName: username,
+	})
+	img, _ := key.Image(200, 200)
+	var buf bytes.Buffer
+	png.Encode(&buf, img)
+	return NewTOTPOutput{
+		ImageBytes: buf.Bytes(),
+		Secret:     key.Secret(),
+	}
+}
+
+func ValidateMFA(userSuppliedCode string, secret string) bool {
+	return totp.Validate(userSuppliedCode, secret)
 }

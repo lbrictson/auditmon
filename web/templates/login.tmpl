@@ -1,0 +1,57 @@
+{{ define "login" }}
+    {{ template "no_auth_header" }}
+    <div class="container" style="padding-top: 5rem">
+        <div class="row">
+            <div class="col">
+            </div>
+            <div class="col">
+                <div class="card">
+                    <h5 class="card-title text-center" style="padding-top: 1rem">Login to Auditmon</h5>
+                    <div class="card-body">
+                        {{ if .login_error }}
+                            <div class="alert alert-dismissible alert-danger">
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                <strong>Oh snap!</strong> Invalid username or password
+                            </div>
+                        {{ end }}
+                        {{ if .mfa_error }}
+                            <div class="alert alert-dismissible alert-danger">
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                <strong>Oh snap!</strong> Invalid MFA code
+                            </div>
+                        {{ end }}
+                        {{ if .locked }}
+                            <div class="alert alert-dismissible alert-danger">
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                <strong>Oh snap!</strong> Your account is locked out, try again later
+                            </div>
+                        {{ end }}
+                        {{ if .mfa_enabled }}
+                            <div class="alert alert-dismissible alert-success">
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                <strong>Nice Work!</strong> MFA is now enabled, proceed to login
+                            </div>
+                        {{ end }}
+                        <form action="/form/login" method="post">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Username</label>
+                                <input type="string" class="form-control" id="username" name="username" aria-describedby="usernameHelp" required autofocus>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">Login</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col">
+            </div>
+        </div>
+    </div>
+    {{ template "no_auth_footer" }}
+{{ end }}

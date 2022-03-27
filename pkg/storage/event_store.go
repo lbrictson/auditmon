@@ -11,6 +11,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/lbrictson/auditmon/ent/event"
+
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 
@@ -44,10 +46,27 @@ func MustNewEventStore(config NewEventStoreInput) *EventStore {
 		panic(fmt.Sprintf("MustNewEventStore requires a database connection"))
 	}
 	e.bufferDirectory = config.BufferDirectory
+	// Make sure the requested directory exists
+	os.Mkdir(config.BufferDirectory, os.ModePerm)
 	e.client = config.EntClient
 	// Start background retry task
 	go e.runEventRetryTask()
 	return &e
+}
+
+func convertEntEventToModelEvent(input ent.Event) models.Event {
+	return models.Event{
+		EventID:         input.ID.String(),
+		EventName:       input.EventName,
+		EventTime:       input.EventTime.UTC(),
+		Username:        input.Username,
+		Resource:        input.Resource,
+		EventSource:     input.EventSource,
+		SourceIPAddress: input.SourceIP,
+		RequestID:       input.RequestID,
+		ReadOnly:        input.ReadOnly,
+		EventData:       input.EventData,
+	}
 }
 
 // Create will insert new events into the database, if the database is not available the events will be saved to disk
@@ -57,7 +76,7 @@ func (s *EventStore) Create(ctx context.Context, events []models.Event) error {
 	t := time.Time{}
 	// Bulk write, much more performant
 	bulk := make([]*ent.EventCreate, len(events))
-	for i, _ := range events {
+	for i := range events {
 		if events[i].EventData == nil {
 			events[i].EventData = make(map[string]interface{})
 		}
@@ -94,6 +113,68 @@ func (s *EventStore) Create(ctx context.Context, events []models.Event) error {
 		}
 	}
 	return nil
+}
+
+// EventStoreQueryBuilder is used to construct an event query, the only required fields are EndTime, StartTime, Limit and Page
+type EventStoreQueryBuilder struct {
+	Username    *string
+	Resource    *string
+	StartTime   time.Time
+	EndTime     time.Time
+	EventName   *string
+	RequestID   *string
+	EventSource *string
+	EventIP     *string
+	ReadOnly    *bool
+	Limit       int
+	Page        int
+}
+
+func (s *EventStore) Query(ctx context.Context, input EventStoreQueryBuilder) ([]models.Event, error) {
+	var events []models.Event
+	q := s.client.Event.Query().Where(event.EventTimeGTE(input.StartTime)).Where(event.EventTimeLTE(input.EndTime))
+	if input.Username != nil {
+		q = q.Where(event.UsernameEQ(*input.Username))
+	}
+	if input.Resource != nil {
+		q = q.Where(event.ResourceEQ(*input.Resource))
+	}
+	if input.EventName != nil {
+		q = q.Where(event.EventNameEQ(*input.EventName))
+	}
+	if input.RequestID != nil {
+		q = q.Where(event.RequestIDEQ(*input.RequestID))
+	}
+	if input.EventSource != nil {
+		q = q.Where(event.EventSourceEQ(*input.EventSource))
+	}
+	if input.EventIP != nil {
+		q = q.Where(event.SourceIPEQ(*input.EventIP))
+	}
+	if input.ReadOnly != nil {
+		q = q.Where(event.ReadOnlyEQ(*input.ReadOnly))
+	}
+	entEvents, err := q.Limit(input.Limit).Offset(input.Limit * input.Page).Order(ent.Desc(event.FieldEventTime)).All(ctx)
+	if err != nil {
+		return events, err
+	}
+	for _, x := range entEvents {
+		events = append(events, convertEntEventToModelEvent(*x))
+	}
+	return events, nil
+}
+
+func (s EventStore) GetByID(ctx context.Context, id string) (models.Event, error) {
+	e := models.Event{}
+	uu, err := uuid.Parse(id)
+	if err != nil {
+		return e, errors.New("invalid id")
+	}
+	entEvent, err := s.client.Event.Get(ctx, uu)
+	if err != nil {
+		return e, err
+	}
+	return convertEntEventToModelEvent(*entEvent), nil
 }
 
 // saveEventsToBufferDirectory will take an array of events and save them into the specified directory with the file
@@ -138,7 +219,10 @@ func loadSavedBufferEventsFromDirectory(directory string) ([]models.Event, error
 				return nil, err
 			}
 			events = append(events, fileEvents...)
-			os.Remove(directory + "/" + x.Name())
+			err = os.Remove(directory + "/" + x.Name())
+			if err != nil {
+				log.Errorf("unable to delete event buffer file %v %v", directory+"/"+x.Name(), err)
+			}
 		}
 	}
 	fsLock.Unlock()

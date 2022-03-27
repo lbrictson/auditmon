@@ -35,8 +35,14 @@ const (
 	FieldLockedUntil = "locked_until"
 	// FieldMfaSecret holds the string denoting the mfa_secret field in the database.
 	FieldMfaSecret = "mfa_secret"
+	// FieldMfaSetupCompleted holds the string denoting the mfa_setup_completed field in the database.
+	FieldMfaSetupCompleted = "mfa_setup_completed"
 	// FieldRecentPasswords holds the string denoting the recent_passwords field in the database.
 	FieldRecentPasswords = "recent_passwords"
+	// FieldMfaImage holds the string denoting the mfa_image field in the database.
+	FieldMfaImage = "mfa_image"
+	// FieldTimezone holds the string denoting the timezone field in the database.
+	FieldTimezone = "timezone"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 )
@@ -55,7 +61,10 @@ var Columns = []string{
 	FieldLocked,
 	FieldLockedUntil,
 	FieldMfaSecret,
+	FieldMfaSetupCompleted,
 	FieldRecentPasswords,
+	FieldMfaImage,
+	FieldTimezone,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -87,6 +96,8 @@ var (
 	DefaultLocked bool
 	// DefaultLockedUntil holds the default value on creation for the "locked_until" field.
 	DefaultLockedUntil time.Time
+	// DefaultMfaSetupCompleted holds the default value on creation for the "mfa_setup_completed" field.
+	DefaultMfaSetupCompleted bool
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )

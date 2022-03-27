@@ -83,6 +83,10 @@ func init() {
 	userDescLockedUntil := userFields[10].Descriptor()
 	// user.DefaultLockedUntil holds the default value on creation for the locked_until field.
 	user.DefaultLockedUntil = userDescLockedUntil.Default.(time.Time)
+	// userDescMfaSetupCompleted is the schema descriptor for mfa_setup_completed field.
+	userDescMfaSetupCompleted := userFields[12].Descriptor()
+	// user.DefaultMfaSetupCompleted holds the default value on creation for the mfa_setup_completed field.
+	user.DefaultMfaSetupCompleted = userDescMfaSetupCompleted.Default.(bool)
 	// userDescID is the schema descriptor for id field.
 	userDescID := userFields[0].Descriptor()
 	// user.DefaultID holds the default value on creation for the id field.

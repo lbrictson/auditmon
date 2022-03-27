@@ -171,6 +171,20 @@ func (uu *UserUpdate) ClearMfaSecret() *UserUpdate {
 	return uu
 }
 
+// SetMfaSetupCompleted sets the "mfa_setup_completed" field.
+func (uu *UserUpdate) SetMfaSetupCompleted(b bool) *UserUpdate {
+	uu.mutation.SetMfaSetupCompleted(b)
+	return uu
+}
+
+// SetNillableMfaSetupCompleted sets the "mfa_setup_completed" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableMfaSetupCompleted(b *bool) *UserUpdate {
+	if b != nil {
+		uu.SetMfaSetupCompleted(*b)
+	}
+	return uu
+}
+
 // SetRecentPasswords sets the "recent_passwords" field.
 func (uu *UserUpdate) SetRecentPasswords(s []string) *UserUpdate {
 	uu.mutation.SetRecentPasswords(s)
@@ -180,6 +194,38 @@ func (uu *UserUpdate) SetRecentPasswords(s []string) *UserUpdate {
 // ClearRecentPasswords clears the value of the "recent_passwords" field.
 func (uu *UserUpdate) ClearRecentPasswords() *UserUpdate {
 	uu.mutation.ClearRecentPasswords()
+	return uu
+}
+
+// SetMfaImage sets the "mfa_image" field.
+func (uu *UserUpdate) SetMfaImage(b []byte) *UserUpdate {
+	uu.mutation.SetMfaImage(b)
+	return uu
+}
+
+// ClearMfaImage clears the value of the "mfa_image" field.
+func (uu *UserUpdate) ClearMfaImage() *UserUpdate {
+	uu.mutation.ClearMfaImage()
+	return uu
+}
+
+// SetTimezone sets the "timezone" field.
+func (uu *UserUpdate) SetTimezone(s string) *UserUpdate {
+	uu.mutation.SetTimezone(s)
+	return uu
+}
+
+// SetNillableTimezone sets the "timezone" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableTimezone(s *string) *UserUpdate {
+	if s != nil {
+		uu.SetTimezone(*s)
+	}
+	return uu
+}
+
+// ClearTimezone clears the value of the "timezone" field.
+func (uu *UserUpdate) ClearTimezone() *UserUpdate {
+	uu.mutation.ClearTimezone()
 	return uu
 }
 
@@ -371,6 +417,13 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: user.FieldMfaSecret,
 		})
 	}
+	if value, ok := uu.mutation.MfaSetupCompleted(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: user.FieldMfaSetupCompleted,
+		})
+	}
 	if value, ok := uu.mutation.RecentPasswords(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeJSON,
@@ -382,6 +435,32 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
 			Type:   field.TypeJSON,
 			Column: user.FieldRecentPasswords,
+		})
+	}
+	if value, ok := uu.mutation.MfaImage(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBytes,
+			Value:  value,
+			Column: user.FieldMfaImage,
+		})
+	}
+	if uu.mutation.MfaImageCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeBytes,
+			Column: user.FieldMfaImage,
+		})
+	}
+	if value, ok := uu.mutation.Timezone(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: user.FieldTimezone,
+		})
+	}
+	if uu.mutation.TimezoneCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: user.FieldTimezone,
 		})
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
@@ -546,6 +625,20 @@ func (uuo *UserUpdateOne) ClearMfaSecret() *UserUpdateOne {
 	return uuo
 }
 
+// SetMfaSetupCompleted sets the "mfa_setup_completed" field.
+func (uuo *UserUpdateOne) SetMfaSetupCompleted(b bool) *UserUpdateOne {
+	uuo.mutation.SetMfaSetupCompleted(b)
+	return uuo
+}
+
+// SetNillableMfaSetupCompleted sets the "mfa_setup_completed" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableMfaSetupCompleted(b *bool) *UserUpdateOne {
+	if b != nil {
+		uuo.SetMfaSetupCompleted(*b)
+	}
+	return uuo
+}
+
 // SetRecentPasswords sets the "recent_passwords" field.
 func (uuo *UserUpdateOne) SetRecentPasswords(s []string) *UserUpdateOne {
 	uuo.mutation.SetRecentPasswords(s)
@@ -555,6 +648,38 @@ func (uuo *UserUpdateOne) SetRecentPasswords(s []string) *UserUpdateOne {
 // ClearRecentPasswords clears the value of the "recent_passwords" field.
 func (uuo *UserUpdateOne) ClearRecentPasswords() *UserUpdateOne {
 	uuo.mutation.ClearRecentPasswords()
+	return uuo
+}
+
+// SetMfaImage sets the "mfa_image" field.
+func (uuo *UserUpdateOne) SetMfaImage(b []byte) *UserUpdateOne {
+	uuo.mutation.SetMfaImage(b)
+	return uuo
+}
+
+// ClearMfaImage clears the value of the "mfa_image" field.
+func (uuo *UserUpdateOne) ClearMfaImage() *UserUpdateOne {
+	uuo.mutation.ClearMfaImage()
+	return uuo
+}
+
+// SetTimezone sets the "timezone" field.
+func (uuo *UserUpdateOne) SetTimezone(s string) *UserUpdateOne {
+	uuo.mutation.SetTimezone(s)
+	return uuo
+}
+
+// SetNillableTimezone sets the "timezone" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableTimezone(s *string) *UserUpdateOne {
+	if s != nil {
+		uuo.SetTimezone(*s)
+	}
+	return uuo
+}
+
+// ClearTimezone clears the value of the "timezone" field.
+func (uuo *UserUpdateOne) ClearTimezone() *UserUpdateOne {
+	uuo.mutation.ClearTimezone()
 	return uuo
 }
 
@@ -770,6 +895,13 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Column: user.FieldMfaSecret,
 		})
 	}
+	if value, ok := uuo.mutation.MfaSetupCompleted(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: user.FieldMfaSetupCompleted,
+		})
+	}
 	if value, ok := uuo.mutation.RecentPasswords(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeJSON,
@@ -781,6 +913,32 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
 			Type:   field.TypeJSON,
 			Column: user.FieldRecentPasswords,
+		})
+	}
+	if value, ok := uuo.mutation.MfaImage(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBytes,
+			Value:  value,
+			Column: user.FieldMfaImage,
+		})
+	}
+	if uuo.mutation.MfaImageCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeBytes,
+			Column: user.FieldMfaImage,
+		})
+	}
+	if value, ok := uuo.mutation.Timezone(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: user.FieldTimezone,
+		})
+	}
+	if uuo.mutation.TimezoneCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: user.FieldTimezone,
 		})
 	}
 	_node = &User{config: uuo.config}

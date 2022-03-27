@@ -170,6 +170,27 @@ func MfaSecret(v string) predicate.User {
 	})
 }
 
+// MfaSetupCompleted applies equality check predicate on the "mfa_setup_completed" field. It's identical to MfaSetupCompletedEQ.
+func MfaSetupCompleted(v bool) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldMfaSetupCompleted), v))
+	})
+}
+
+// MfaImage applies equality check predicate on the "mfa_image" field. It's identical to MfaImageEQ.
+func MfaImage(v []byte) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldMfaImage), v))
+	})
+}
+
+// Timezone applies equality check predicate on the "timezone" field. It's identical to TimezoneEQ.
+func Timezone(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldTimezone), v))
+	})
+}
+
 // UsernameEQ applies the EQ predicate on the "username" field.
 func UsernameEQ(v string) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
@@ -1036,6 +1057,20 @@ func MfaSecretContainsFold(v string) predicate.User {
 	})
 }
 
+// MfaSetupCompletedEQ applies the EQ predicate on the "mfa_setup_completed" field.
+func MfaSetupCompletedEQ(v bool) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldMfaSetupCompleted), v))
+	})
+}
+
+// MfaSetupCompletedNEQ applies the NEQ predicate on the "mfa_setup_completed" field.
+func MfaSetupCompletedNEQ(v bool) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldMfaSetupCompleted), v))
+	})
+}
+
 // RecentPasswordsIsNil applies the IsNil predicate on the "recent_passwords" field.
 func RecentPasswordsIsNil() predicate.User {
 	return predicate.User(func(s *sql.Selector) {
@@ -1047,6 +1082,221 @@ func RecentPasswordsIsNil() predicate.User {
 func RecentPasswordsNotNil() predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		s.Where(sql.NotNull(s.C(FieldRecentPasswords)))
+	})
+}
+
+// MfaImageEQ applies the EQ predicate on the "mfa_image" field.
+func MfaImageEQ(v []byte) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldMfaImage), v))
+	})
+}
+
+// MfaImageNEQ applies the NEQ predicate on the "mfa_image" field.
+func MfaImageNEQ(v []byte) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldMfaImage), v))
+	})
+}
+
+// MfaImageIn applies the In predicate on the "mfa_image" field.
+func MfaImageIn(vs ...[]byte) predicate.User {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.User(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldMfaImage), v...))
+	})
+}
+
+// MfaImageNotIn applies the NotIn predicate on the "mfa_image" field.
+func MfaImageNotIn(vs ...[]byte) predicate.User {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.User(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldMfaImage), v...))
+	})
+}
+
+// MfaImageGT applies the GT predicate on the "mfa_image" field.
+func MfaImageGT(v []byte) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldMfaImage), v))
+	})
+}
+
+// MfaImageGTE applies the GTE predicate on the "mfa_image" field.
+func MfaImageGTE(v []byte) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldMfaImage), v))
+	})
+}
+
+// MfaImageLT applies the LT predicate on the "mfa_image" field.
+func MfaImageLT(v []byte) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldMfaImage), v))
+	})
+}
+
+// MfaImageLTE applies the LTE predicate on the "mfa_image" field.
+func MfaImageLTE(v []byte) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldMfaImage), v))
+	})
+}
+
+// MfaImageIsNil applies the IsNil predicate on the "mfa_image" field.
+func MfaImageIsNil() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldMfaImage)))
+	})
+}
+
+// MfaImageNotNil applies the NotNil predicate on the "mfa_image" field.
+func MfaImageNotNil() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldMfaImage)))
+	})
+}
+
+// TimezoneEQ applies the EQ predicate on the "timezone" field.
+func TimezoneEQ(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldTimezone), v))
+	})
+}
+
+// TimezoneNEQ applies the NEQ predicate on the "timezone" field.
+func TimezoneNEQ(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldTimezone), v))
+	})
+}
+
+// TimezoneIn applies the In predicate on the "timezone" field.
+func TimezoneIn(vs ...string) predicate.User {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.User(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldTimezone), v...))
+	})
+}
+
+// TimezoneNotIn applies the NotIn predicate on the "timezone" field.
+func TimezoneNotIn(vs ...string) predicate.User {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.User(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldTimezone), v...))
+	})
+}
+
+// TimezoneGT applies the GT predicate on the "timezone" field.
+func TimezoneGT(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldTimezone), v))
+	})
+}
+
+// TimezoneGTE applies the GTE predicate on the "timezone" field.
+func TimezoneGTE(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldTimezone), v))
+	})
+}
+
+// TimezoneLT applies the LT predicate on the "timezone" field.
+func TimezoneLT(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldTimezone), v))
+	})
+}
+
+// TimezoneLTE applies the LTE predicate on the "timezone" field.
+func TimezoneLTE(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldTimezone), v))
+	})
+}
+
+// TimezoneContains applies the Contains predicate on the "timezone" field.
+func TimezoneContains(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldTimezone), v))
+	})
+}
+
+// TimezoneHasPrefix applies the HasPrefix predicate on the "timezone" field.
+func TimezoneHasPrefix(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldTimezone), v))
+	})
+}
+
+// TimezoneHasSuffix applies the HasSuffix predicate on the "timezone" field.
+func TimezoneHasSuffix(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldTimezone), v))
+	})
+}
+
+// TimezoneIsNil applies the IsNil predicate on the "timezone" field.
+func TimezoneIsNil() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldTimezone)))
+	})
+}
+
+// TimezoneNotNil applies the NotNil predicate on the "timezone" field.
+func TimezoneNotNil() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldTimezone)))
+	})
+}
+
+// TimezoneEqualFold applies the EqualFold predicate on the "timezone" field.
+func TimezoneEqualFold(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldTimezone), v))
+	})
+}
+
+// TimezoneContainsFold applies the ContainsFold predicate on the "timezone" field.
+func TimezoneContainsFold(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldTimezone), v))
 	})
 }
 

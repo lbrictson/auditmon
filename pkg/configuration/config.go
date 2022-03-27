@@ -40,7 +40,6 @@ type DurabilityConfig struct {
 }
 
 type SecurityConfig struct {
-	EnforceMFA             bool   `yaml:"enforce_mfa" envconfig:"SECURITY_ENFORCE_MFA"`
 	MinPasswordLength      int    `yaml:"min_password_length" envconfig:"SECURITY_MIN_PASSWORD_LENGTH"`
 	MaxPasswordAgeDays     int    `yaml:"max_password_age_days" envconfig:"SECURITY_MAX_PASSWORD_AGE_DAYS"`
 	MaxPasswordReuse       int    `yaml:"max_password_reuse" envconfig:"SECURITY_MAX_PASSWORD_REUSE"`
@@ -49,6 +48,7 @@ type SecurityConfig struct {
 	SessionMaxSeconds      int    `yaml:"session_max_seconds" envconfig:"SECURITY_MAX_SESSION_SECONDS"`
 	MaxFailedLogins        int    `yaml:"max_failed_logins" envconfig:"SECURITY_MAX_FAILED_LOGINS"`
 	LockoutDurationSeconds int    `yaml:"lockout_duration_seconds" envconfig:"SECURITY_LOCKOUT_DURATION_SECONDS"`
+	SessionSecret          string `yaml:"session_secret" envconfig:"SECURITY_SESSION_SECRET"`
 }
 
 type ServerConfig struct {

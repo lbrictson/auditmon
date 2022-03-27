@@ -1,0 +1,142 @@
+{{ define "index" }}
+    {{ template "authed_header" . }}
+    <div class="container-fluid" style="padding-top: 2rem;">
+        <div class="row">
+            <div class="col-2">
+                <div class="card">
+                    <div class="card-body">
+                <form action="/" method="post">
+                    <div class="mb-3">
+                        <label for="startDate">Start</label>
+                        <input value="{{ .Filters.startTime }}" id="startDate" name="startDate" class="form-control" type="datetime-local" autocomplete="off" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="endDate">End</label>
+                        <input value="{{ .Filters.endTime }}" id="endDate" name="endDate" class="form-control" type="datetime-local" max='12-12-2000' required autocomplete="off" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="filterBy" class="form-label">Filter By</label>
+                        <select id="filterBy" class="form-select" aria-label="Filter By" name="filterBy">
+                            <option value="username" {{ if eq .Filters.filterType "Username" }}selected{{ end }}>Username</option>
+                            <option value="Resource" {{ if eq .Filters.filterType "Resource" }}selected{{ end }}>Resource</option>
+                            <option value="EventName" {{ if eq .Filters.filterType "EventName" }}selected{{ end }}>Event</option>
+                            <option value="EventSource" {{ if eq .Filters.filterType "EventSource" }}selected{{ end }}>Source</option>
+                            <option value="IPAddress" {{ if eq .Filters.filterType "IPAddress" }}selected{{ end }}>IP Address</option>
+                            <option value="RequestID" {{ if eq .Filters.filterType "RequestID" }}selected{{ end }}>Request ID</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="filterInput" name="filterInput" value="{{ .Filters.filterString }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="readOnly" class="form-label">Read Only</label>
+                        <select id="readOnly" class="form-select" aria-label="Read Only" name="readOnly">
+                            <option value="" {{ if eq .Filters.readOnly "" }}selected{{ end }}></option>
+                            <option value="true" {{ if eq .Filters.readOnly "true" }}selected{{ end }}>True</option>
+                            <option value="false" {{ if eq .Filters.readOnly "false" }}selected{{ end }}>False</option>
+                        </select>
+                    </div>
+                    <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                    </div>
+                    <br>
+                    <a href="/">Reset Search</a>
+                </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-10">
+                {{ $eventLength := len .Events }}
+                {{ if eq $eventLength 0 }}
+                    <h2>No matching events</h2>
+                {{ else }}
+                    <label>Search Results</label>
+                    <input id='myInput' onkeyup='searchTable()' type='text' />
+                        <br>
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th scope="col">Time</th>
+                            <th scope="col">Event Name</th>
+                            <th scope="col">Username</th>
+                            <th scope="col">Resource</th>
+                            <th scope="col">Read Only</th>
+                        </tr>
+                        </thead>
+                        <tbody id="myTable">
+                        {{ range .Events }}
+                            <tr class="table-dark" onclick="showDetails('{{ .EventID }}')" style="cursor: pointer;" hx-trigger="click" hx-get="/hook/event/{{ .EventID }}" hx-placeholder="Loading..." hx-target="#eventBody">
+                                <th scope="row">{{ .EventTime }}</th>
+                                <td>{{ .EventName }}</td>
+                                <td>{{ .Username }}</td>
+                                <td>{{ .Resource }}</td>
+                                <td>{{ .ReadOnly }}</td>
+                            </tr>
+                        {{ end }}
+                        </tbody>
+                    </table>
+                {{ end }}
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal" tabindex="-1" id="detailsModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="eventIDFill">Modal title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body"><pre><code id="eventBody"></code></pre></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{{ template "base_js" }}
+<script src="/static/js/date_files.js"></script>
+<script src="https://unpkg.com/htmx.org@1.7.0"></script>
+<script>
+    setDatePickToMaxToday("endDate")
+</script>
+<script>
+    function showDetails(id) {
+        console.log(id)
+        var detailsModal = new bootstrap.Modal(document.getElementById('detailsModal'), {
+            keyboard: true,
+            focus: true,
+            backdrop: 'static'
+        })
+        detailsModal.show()
+        fill = document.getElementById('eventIDFill')
+        fill.innerText = 'Event: ' + id
+    }
+</script>
+<script>
+    function searchTable() {
+        var input, filter, found, table, tr, td, i, j;
+        input = document.getElementById("myInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("myTable");
+        tr = table.getElementsByTagName("tr");
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td");
+            for (j = 0; j < td.length; j++) {
+                if (td[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                    found = true;
+                }
+            }
+            if (found) {
+                tr[i].style.display = "";
+                found = false;
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
+</script>
+{{ template "authed_footer" }}
+{{ end }}

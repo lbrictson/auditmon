@@ -41,7 +41,10 @@ var (
 		{Name: "locked", Type: field.TypeBool, Default: false},
 		{Name: "locked_until", Type: field.TypeTime},
 		{Name: "mfa_secret", Type: field.TypeString, Nullable: true},
+		{Name: "mfa_setup_completed", Type: field.TypeBool, Default: false},
 		{Name: "recent_passwords", Type: field.TypeJSON, Nullable: true},
+		{Name: "mfa_image", Type: field.TypeBytes, Nullable: true},
+		{Name: "timezone", Type: field.TypeString, Nullable: true},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{

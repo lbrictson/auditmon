@@ -22,3 +22,6 @@ auditmon.db
 
 # Ignore test data files
 test_data/*.json
+
+# Ignore tmp dir if it is made
+tmp/

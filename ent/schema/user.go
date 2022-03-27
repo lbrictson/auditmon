@@ -30,7 +30,10 @@ func (User) Fields() []ent.Field {
 		field.Bool("locked").Default(false),
 		field.Time("locked_until").Default(time.Now()),
 		field.String("mfa_secret").Optional(),
+		field.Bool("mfa_setup_completed").Default(false),
 		field.Strings("recent_passwords").Optional(),
+		field.Bytes("mfa_image").Optional(),
+		field.String("timezone").Optional(),
 	}
 }
 

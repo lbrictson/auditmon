@@ -40,8 +40,14 @@ type User struct {
 	LockedUntil time.Time `json:"locked_until,omitempty"`
 	// MfaSecret holds the value of the "mfa_secret" field.
 	MfaSecret string `json:"mfa_secret,omitempty"`
+	// MfaSetupCompleted holds the value of the "mfa_setup_completed" field.
+	MfaSetupCompleted bool `json:"mfa_setup_completed,omitempty"`
 	// RecentPasswords holds the value of the "recent_passwords" field.
 	RecentPasswords []string `json:"recent_passwords,omitempty"`
+	// MfaImage holds the value of the "mfa_image" field.
+	MfaImage []byte `json:"mfa_image,omitempty"`
+	// Timezone holds the value of the "timezone" field.
+	Timezone string `json:"timezone,omitempty"`
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -49,13 +55,13 @@ func (*User) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case user.FieldRecentPasswords:
+		case user.FieldRecentPasswords, user.FieldMfaImage:
 			values[i] = new([]byte)
-		case user.FieldForcePasswordChange, user.FieldLocked:
+		case user.FieldForcePasswordChange, user.FieldLocked, user.FieldMfaSetupCompleted:
 			values[i] = new(sql.NullBool)
 		case user.FieldFailedLogins:
 			values[i] = new(sql.NullInt64)
-		case user.FieldUsername, user.FieldHashedPassword, user.FieldRole, user.FieldMfaSecret:
+		case user.FieldUsername, user.FieldHashedPassword, user.FieldRole, user.FieldMfaSecret, user.FieldTimezone:
 			values[i] = new(sql.NullString)
 		case user.FieldCreatedAt, user.FieldPasswordLastSetAt, user.FieldLastLogin, user.FieldLockedUntil:
 			values[i] = new(sql.NullTime)
@@ -148,6 +154,12 @@ func (u *User) assignValues(columns []string, values []interface{}) error {
 			} else if value.Valid {
 				u.MfaSecret = value.String
 			}
+		case user.FieldMfaSetupCompleted:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field mfa_setup_completed", values[i])
+			} else if value.Valid {
+				u.MfaSetupCompleted = value.Bool
+			}
 		case user.FieldRecentPasswords:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field recent_passwords", values[i])
@@ -155,6 +167,18 @@ func (u *User) assignValues(columns []string, values []interface{}) error {
 				if err := json.Unmarshal(*value, &u.RecentPasswords); err != nil {
 					return fmt.Errorf("unmarshal field recent_passwords: %w", err)
 				}
+			}
+		case user.FieldMfaImage:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field mfa_image", values[i])
+			} else if value != nil {
+				u.MfaImage = *value
+			}
+		case user.FieldTimezone:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field timezone", values[i])
+			} else if value.Valid {
+				u.Timezone = value.String
 			}
 		}
 	}
@@ -206,8 +230,14 @@ func (u *User) String() string {
 	builder.WriteString(u.LockedUntil.Format(time.ANSIC))
 	builder.WriteString(", mfa_secret=")
 	builder.WriteString(u.MfaSecret)
+	builder.WriteString(", mfa_setup_completed=")
+	builder.WriteString(fmt.Sprintf("%v", u.MfaSetupCompleted))
 	builder.WriteString(", recent_passwords=")
 	builder.WriteString(fmt.Sprintf("%v", u.RecentPasswords))
+	builder.WriteString(", mfa_image=")
+	builder.WriteString(fmt.Sprintf("%v", u.MfaImage))
+	builder.WriteString(", timezone=")
+	builder.WriteString(u.Timezone)
 	builder.WriteByte(')')
 	return builder.String()
 }
