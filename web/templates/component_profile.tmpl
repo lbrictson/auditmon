@@ -1,0 +1,51 @@
+{{ define "preferences" }}
+    <div class="row">
+        <div class="col-4">
+            <ul class="list-group">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Username:  {{ .Data.Username }}
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Role:  {{ .Data.Role }}
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    TimeZone: {{ .Data.Timezone }}
+                    <span class="badge bg-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#tzModal" style="cursor: pointer">Edit</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="modal" tabindex="-1" id="tzModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tzFill">Edit Timezone</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <br>
+                    <form action="/form/timezone" method="post">
+                        <select class="form-select" required id="timezone" name="timezone">
+                            <option value=""></option>
+                            <option value="UTC">UTC</option>
+                            <option value="Pacific/Honolulu">Pacific/Honolulu GMT-10:00</option>
+                            <option value="America/Anchorage">America/Anchorage GMT-9:00</option>
+                            <option value="America/Los_Angeles">America/Los_Angeles GMT-8:00</option>
+                            <option value="America/Boise">America/Boise GMT-7:00</option>
+                            <option value="America/Denver">America/Denver GMT-7:00</option>
+                            <option value="America/Phoenix">America/Phoenix GMT-7:00</option>
+                            <option value="America/Chicago">America/Chicago GMT-6:00</option>
+                            <option value="America/Detroit">America/Detroit GMT-5:00</option>
+                            <option value="America/New_York">America/New_York GMT-5:00</option>
+                        </select>
+                        <br>
+                            <button class="btn btn-primary">Save</button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{{ end }}

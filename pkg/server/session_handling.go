@@ -18,6 +18,7 @@ type SessionData struct {
 	MFACompleted          bool   `json:"mfa_completed,omitempty"`
 	MFASetupRequired      bool   `json:"mfa_setup_required,omitempty"`
 	PasswordResetRequired bool   `json:"password_reset_required,omitempty"`
+	Timezone              string `json:"timezone,omitempty"`
 }
 
 type SessionMessages struct {

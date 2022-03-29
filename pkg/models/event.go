@@ -14,4 +14,5 @@ type Event struct {
 	ReadOnly          bool                   `json:"read_only"`
 	EventData         map[string]interface{} `json:"event_data"`
 	FrontendEventTime string                 `json:"-"`
+	UnixTime          int64                  `json:"-"`
 }

@@ -33,6 +33,7 @@ type DatabaseConfig struct {
 type SettingsConfig struct {
 	RetentionDays int `yaml:"retention_days" envconfig:"SETTINGS_RETENTION_DAYS"`
 	MaxQueryDays  int `yaml:"max_query_days" envconfig:"SETTINGS_MAX_QUERY_DAYS"`
+	MaxResults    int `yaml:"max_results" envconfig:"SETTINGS_MAX_RESULTS"`
 }
 
 type DurabilityConfig struct {

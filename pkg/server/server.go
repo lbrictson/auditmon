@@ -26,6 +26,7 @@ type Server struct {
 	maxOldPasswordUse int
 	maxFailedLogins   int
 	lockoutSeconds    int
+	maxQueryResults   int
 }
 
 type NewServerInput struct {
@@ -39,6 +40,7 @@ type NewServerInput struct {
 	MaxOldPasswordUse int
 	MaxFailedLogins   int
 	LockoutSeconds    int
+	MaxQueryResults   int
 }
 
 func MustNewServer(config NewServerInput) *Server {
@@ -53,6 +55,7 @@ func MustNewServer(config NewServerInput) *Server {
 	s.sessionSecret = config.SessionSecret
 	s.minPasswordLength = config.MinPasswordLength
 	s.maxOldPasswordUse = config.MaxOldPasswordUse
+	s.maxQueryResults = config.MaxQueryResults
 	return &s
 }
 
@@ -88,5 +91,11 @@ func (s *Server) RunServer() {
 	frontendAuthRequiredPages.GET("/", s.viewIndexPage)
 	frontendAuthRequiredPages.POST("/", s.formIndexPage)
 	frontendAuthRequiredPages.GET("/hook/event/:id", s.hookGetEventByID)
+	// Profile routes
+	frontendAuthRequiredPages.GET("/profile", s.viewProfilePage)
+	frontendAuthRequiredPages.POST("/form/timezone", s.formTimezone)
+	// HTML components
+	components := e.Group("/component", s.frontendAuthenticationRequiredMiddleware)
+	components.GET("/preferences.html", s.componentPreferences)
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%v", s.port)))
 }

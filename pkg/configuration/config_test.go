@@ -32,6 +32,7 @@ func TestMustReadConfig(t *testing.T) {
 				Settings: SettingsConfig{
 					RetentionDays: 365,
 					MaxQueryDays:  30,
+					MaxResults:    25000,
 				},
 				Durability: DurabilityConfig{BufferLocation: "tmp/"},
 				Security: SecurityConfig{
@@ -104,6 +105,7 @@ func TestMustReadConfigWithEnvOverrides(t *testing.T) {
 				Settings: SettingsConfig{
 					RetentionDays: 365,
 					MaxQueryDays:  30,
+					MaxResults:    25000,
 				},
 				Durability: DurabilityConfig{BufferLocation: "tmp/"},
 				Security: SecurityConfig{

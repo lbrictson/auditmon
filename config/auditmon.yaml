@@ -11,6 +11,7 @@ database:
 settings:
   retention_days: 365 # Number of days events are stored for, older events are permanently deleted
   max_query_days: 30 # Max number of days to allow a user to query in the frontend, tune for database load
+  max_results: 25000 # Max number of results to retrieve for the frontend to use
 
 durability:
   buffer_location: tmp/ # this directory will contain audit events that failed to send and are awaiting retries

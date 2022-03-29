@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -15,7 +16,12 @@ import (
 )
 
 func (s *Server) viewIndexPage(c echo.Context) error {
-	limit := 10000
+	tz := c.Get("userData").(SessionData).Timezone
+	loc, _ := time.LoadLocation(tz)
+	if loc == nil {
+		loc, _ = time.LoadLocation("UTC")
+	}
+	limit := s.maxQueryResults
 	offSet := 0
 	qFilterType := c.QueryParam("filterBy")
 	if qFilterType == "" {
@@ -45,6 +51,14 @@ func (s *Server) viewIndexPage(c echo.Context) error {
 		endTime = time.Now().Add(5 * time.Minute)
 		log.Error(err)
 	}
+	t := time.Now().In(loc)
+	by := -1
+	_, offset := t.Zone()
+	if offset >= 0 {
+		by = 1
+	}
+	endTime = endTime.Add(time.Duration(offset*by) * time.Second).In(loc)
+	startTime = startTime.Add(time.Duration(offset*by) * time.Second).In(loc)
 	query := storage.EventStoreQueryBuilder{
 		Username:    nil,
 		Resource:    nil,
@@ -57,6 +71,12 @@ func (s *Server) viewIndexPage(c echo.Context) error {
 		ReadOnly:    nil,
 		Limit:       limit,
 		Page:        offSet,
+	}
+	if qReadOnly != "" {
+		b, ok := strconv.ParseBool(qReadOnly)
+		if ok == nil {
+			query.ReadOnly = &b
+		}
 	}
 	if qFilterType != "" {
 		if qFilterString != "" {
@@ -80,6 +100,13 @@ func (s *Server) viewIndexPage(c echo.Context) error {
 	if err != nil {
 		log.Error(err)
 	}
+	limited := false
+	if len(events) == limit {
+		limited = true
+	}
+	for i := range events {
+		events[i].FrontendEventTime = fmt.Sprintf(events[i].EventTime.In(loc).Format("2006-01-02 03:04pm MST"))
+	}
 	return c.Render(http.StatusOK, "index", map[string]any{
 		"Filters": map[string]any{
 			"filterType":   qFilterType,
@@ -88,7 +115,10 @@ func (s *Server) viewIndexPage(c echo.Context) error {
 			"startTime":    qStart,
 			"endTime":      qEnd,
 		},
-		"Events": events,
+		"Events":   events,
+		"Limited":  limited,
+		"Limit":    limit,
+		"Timezone": tz,
 	})
 }
 

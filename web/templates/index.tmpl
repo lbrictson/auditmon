@@ -3,6 +3,12 @@
     <div class="container-fluid" style="padding-top: 2rem;">
         <div class="row">
             <div class="col-2">
+                {{ if .Limited }}
+                    <div class="alert alert-dismissible alert-warning">
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        <strong>Warning</strong> Search results truncated to {{ .Limit }} results.  Try narrowing your search.
+                    </div>
+                {{ end }}
                 <div class="card">
                     <div class="card-body">
                 <form action="/" method="post">
@@ -41,32 +47,42 @@
                     </div>
                     <br>
                     <a href="/">Reset Search</a>
+                    <hr>
+                    <p>Viewing events in {{ .Timezone }} timezone  <a href="/profile">Change</a></p>
                 </form>
                     </div>
                 </div>
             </div>
             <div class="col-10">
+
                 {{ $eventLength := len .Events }}
                 {{ if eq $eventLength 0 }}
                     <h2>No matching events</h2>
                 {{ else }}
-                    <label>Search Results</label>
-                    <input id='myInput' onkeyup='searchTable()' type='text' />
-                        <br>
-                    <table class="table table-hover">
+                <div class="card">
+                    <div class="card-body">
+                <div class="d-flex justify-content-center text-success align-middle" id="loader">
+                    <div class="spinner-border text-success" style="width: 6rem; height: 6rem;" role="status" >
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <br>
+                </div>
+                        <h3 class="d-flex justify-content-center text-success align-middle" id="loader2">Processing Events</h3>
+                    <div id="tableHider" class="d-none">
+                    <table class="table table-hover" id="eventTable">
                         <thead>
                         <tr>
-                            <th scope="col">Time</th>
-                            <th scope="col">Event Name</th>
-                            <th scope="col">Username</th>
-                            <th scope="col">Resource</th>
-                            <th scope="col">Read Only</th>
+                            <th scope="col-2">Time</th>
+                            <th scope="col-4">Event Name</th>
+                            <th scope="col-2">Username</th>
+                            <th scope="col-3">Resource</th>
+                            <th scope="col-1">Read Only</th>
                         </tr>
                         </thead>
                         <tbody id="myTable">
                         {{ range .Events }}
                             <tr class="table-dark" onclick="showDetails('{{ .EventID }}')" style="cursor: pointer;" hx-trigger="click" hx-get="/hook/event/{{ .EventID }}" hx-placeholder="Loading..." hx-target="#eventBody">
-                                <th scope="row">{{ .EventTime }}</th>
+                                <th scope="row" data-order="{{ .UnixTime }}">{{ .FrontendEventTime }}</th>
                                 <td>{{ .EventName }}</td>
                                 <td>{{ .Username }}</td>
                                 <td>{{ .Resource }}</td>
@@ -75,7 +91,10 @@
                         {{ end }}
                         </tbody>
                     </table>
+                    </div>
                 {{ end }}
+            </div>
+                </div>
             </div>
         </div>
     </div>
@@ -98,7 +117,7 @@
 
 {{ template "base_js" }}
 <script src="/static/js/date_files.js"></script>
-<script src="https://unpkg.com/htmx.org@1.7.0"></script>
+<script type="text/javascript" charset="utf8" src="/static/js/datatables.js"></script>
 <script>
     setDatePickToMaxToday("endDate")
 </script>
@@ -114,6 +133,26 @@
         fill = document.getElementById('eventIDFill')
         fill.innerText = 'Event: ' + id
     }
+</script>
+<script>
+    function swapper() {
+        tableH = document.getElementById('tableHider');
+        loader = document.getElementById('loader');
+        loader2 = document.getElementById('loader2');
+        loader.classList.add("d-none");
+        loader2.classList.add("d-none");
+        tableH.classList.remove("d-none");
+    };
+
+    $(document).ready( function () {
+        $('#eventTable').DataTable({
+            "pageLength": 25,
+            "order": [[ 0, "desc" ]],
+            "drawCallback": function(setting) {
+                swapper();}
+        });
+    } );
+
 </script>
 <script>
     function searchTable() {

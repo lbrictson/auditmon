@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -66,6 +67,7 @@ func convertEntEventToModelEvent(input ent.Event) models.Event {
 		RequestID:       input.RequestID,
 		ReadOnly:        input.ReadOnly,
 		EventData:       input.EventData,
+		UnixTime:        input.EventTime.Unix(),
 	}
 }
 
@@ -73,6 +75,7 @@ func convertEntEventToModelEvent(input ent.Event) models.Event {
 // and a retry will be attempted later.  An error is only returned if the insert failed as well as writing the file to
 // disk.  This could happen because the disk is full or other IO errors
 func (s *EventStore) Create(ctx context.Context, events []models.Event) error {
+	dbTime, _ := time.LoadLocation("UTC")
 	t := time.Time{}
 	// Bulk write, much more performant
 	bulk := make([]*ent.EventCreate, len(events))
@@ -81,7 +84,9 @@ func (s *EventStore) Create(ctx context.Context, events []models.Event) error {
 			events[i].EventData = make(map[string]interface{})
 		}
 		if events[i].EventTime.String() == t.String() {
-			events[i].EventTime = time.Now()
+			events[i].EventTime = time.Now().In(dbTime)
+		} else {
+			events[i].EventTime = events[i].EventTime.In(dbTime)
 		}
 		if events[i].Resource == "" {
 			events[i].Resource = "-"
@@ -131,8 +136,9 @@ type EventStoreQueryBuilder struct {
 }
 
 func (s *EventStore) Query(ctx context.Context, input EventStoreQueryBuilder) ([]models.Event, error) {
+	dbTime, _ := time.LoadLocation("UTC")
 	var events []models.Event
-	q := s.client.Event.Query().Where(event.EventTimeGTE(input.StartTime)).Where(event.EventTimeLTE(input.EndTime))
+	q := s.client.Event.Query().Where(event.EventTimeGTE(input.StartTime.In(dbTime))).Where(event.EventTimeLTE(input.EndTime.In(dbTime)))
 	if input.Username != nil {
 		q = q.Where(event.UsernameEQ(*input.Username))
 	}
@@ -161,6 +167,9 @@ func (s *EventStore) Query(ctx context.Context, input EventStoreQueryBuilder) ([
 	for _, x := range entEvents {
 		events = append(events, convertEntEventToModelEvent(*x))
 	}
+	sort.Slice(events, func(i, j int) bool {
+		return events[i].EventTime.Unix() > events[j].EventTime.Unix()
+	})
 	return events, nil
 }
 

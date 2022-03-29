@@ -78,6 +78,7 @@ func main() {
 		CallBackURL:       config.Server.RootURL,
 		MaxSessionSeconds: config.Security.SessionMaxSeconds,
 		SessionSecret:     config.Security.SessionSecret,
+		MaxQueryResults:   config.Settings.MaxResults,
 	})
 	err = seedUser(userStore, config.Security.InitialUser, config.Security.InitialPassword, config.Server.RootURL)
 	if err != nil {

@@ -196,6 +196,7 @@ func (s *Server) formMFA(c echo.Context) error {
 		MFACompleted:          true,
 		MFASetupRequired:      false,
 		PasswordResetRequired: false,
+		Timezone:              u.Timezone,
 	}, c)
 	s.eventStorage.Create(context.TODO(), []models.Event{
 		{
