@@ -22,6 +22,19 @@ func (f EventFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error
 	return f(ctx, mv)
 }
 
+// The EventNameAutofillFunc type is an adapter to allow the use of ordinary
+// function as EventNameAutofill mutator.
+type EventNameAutofillFunc func(context.Context, *ent.EventNameAutofillMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f EventNameAutofillFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.EventNameAutofillMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.EventNameAutofillMutation", m)
+	}
+	return f(ctx, mv)
+}
+
 // The UserFunc type is an adapter to allow the use of ordinary
 // function as User mutator.
 type UserFunc func(context.Context, *ent.UserMutation) (ent.Value, error)
@@ -31,6 +44,19 @@ func (f UserFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error)
 	mv, ok := m.(*ent.UserMutation)
 	if !ok {
 		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserMutation", m)
+	}
+	return f(ctx, mv)
+}
+
+// The UsernameAutofillFunc type is an adapter to allow the use of ordinary
+// function as UsernameAutofill mutator.
+type UsernameAutofillFunc func(context.Context, *ent.UsernameAutofillMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f UsernameAutofillFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.UsernameAutofillMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UsernameAutofillMutation", m)
 	}
 	return f(ctx, mv)
 }

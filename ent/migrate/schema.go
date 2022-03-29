@@ -26,6 +26,24 @@ var (
 		Name:       "events",
 		Columns:    EventsColumns,
 		PrimaryKey: []*schema.Column{EventsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "event_event_time_event_name_username",
+				Unique:  false,
+				Columns: []*schema.Column{EventsColumns[1], EventsColumns[2], EventsColumns[3]},
+			},
+		},
+	}
+	// EventNameAutofillsColumns holds the columns for the "event_name_autofills" table.
+	EventNameAutofillsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "event_name", Type: field.TypeString, Unique: true},
+	}
+	// EventNameAutofillsTable holds the schema information for the "event_name_autofills" table.
+	EventNameAutofillsTable = &schema.Table{
+		Name:       "event_name_autofills",
+		Columns:    EventNameAutofillsColumns,
+		PrimaryKey: []*schema.Column{EventNameAutofillsColumns[0]},
 	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
@@ -52,10 +70,23 @@ var (
 		Columns:    UsersColumns,
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
 	}
+	// UsernameAutofillsColumns holds the columns for the "username_autofills" table.
+	UsernameAutofillsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "username", Type: field.TypeString, Unique: true},
+	}
+	// UsernameAutofillsTable holds the schema information for the "username_autofills" table.
+	UsernameAutofillsTable = &schema.Table{
+		Name:       "username_autofills",
+		Columns:    UsernameAutofillsColumns,
+		PrimaryKey: []*schema.Column{UsernameAutofillsColumns[0]},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		EventsTable,
+		EventNameAutofillsTable,
 		UsersTable,
+		UsernameAutofillsTable,
 	}
 )
 

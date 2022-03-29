@@ -9,5 +9,11 @@ import (
 // Event is the predicate function for event builders.
 type Event func(*sql.Selector)
 
+// EventNameAutofill is the predicate function for eventnameautofill builders.
+type EventNameAutofill func(*sql.Selector)
+
 // User is the predicate function for user builders.
 type User func(*sql.Selector)
+
+// UsernameAutofill is the predicate function for usernameautofill builders.
+type UsernameAutofill func(*sql.Selector)

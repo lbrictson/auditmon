@@ -22,7 +22,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="filterBy" class="form-label">Filter By</label>
-                        <select id="filterBy" class="form-select" aria-label="Filter By" name="filterBy">
+                        <select id="filterBy" class="form-select" aria-label="Filter By" name="filterBy" hx-params="*" hx-target="#filterInputSwap" hx-get="/component/filterby-datalist.html">
                             <option value="username" {{ if eq .Filters.filterType "Username" }}selected{{ end }}>Username</option>
                             <option value="Resource" {{ if eq .Filters.filterType "Resource" }}selected{{ end }}>Resource</option>
                             <option value="EventName" {{ if eq .Filters.filterType "EventName" }}selected{{ end }}>Event</option>
@@ -31,9 +31,19 @@
                             <option value="RequestID" {{ if eq .Filters.filterType "RequestID" }}selected{{ end }}>Request ID</option>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <input type="text" class="form-control" id="filterInput" name="filterInput" value="{{ .Filters.filterString }}">
+                    <div class="mb-3" id="filterInputSwap">
+                        <input min="3" {{ if eq .Filters.filterType "Username" }}list="autofill-username"{{ end }} {{ if eq .Filters.filterType "EventName" }}list="autofill-EventName"{{ end }}  type="text" class="form-control" id="filterInput" name="filterInput" value="{{ .Filters.filterString }}">
                     </div>
+                    <datalist id="autofill-username">
+                        {{ range .Usernames }}
+                        <option value="{{ .Username }}">
+                        {{ end }}
+                    </datalist>
+                    <datalist id="autofill-EventName">
+                        {{ range .EventNames }}
+                        <option value="{{ .Name }}">
+                        {{ end }}
+                    </datalist>
                     <div class="mb-3">
                         <label for="readOnly" class="form-label">Read Only</label>
                         <select id="readOnly" class="form-select" aria-label="Read Only" name="readOnly">

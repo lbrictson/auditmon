@@ -9,7 +9,9 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/lbrictson/auditmon/ent/event"
+	"github.com/lbrictson/auditmon/ent/eventnameautofill"
 	"github.com/lbrictson/auditmon/ent/user"
+	"github.com/lbrictson/auditmon/ent/usernameautofill"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -30,8 +32,10 @@ type OrderFunc func(*sql.Selector)
 // columnChecker returns a function indicates if the column exists in the given column.
 func columnChecker(table string) func(string) error {
 	checks := map[string]func(string) bool{
-		event.Table: event.ValidColumn,
-		user.Table:  user.ValidColumn,
+		event.Table:             event.ValidColumn,
+		eventnameautofill.Table: eventnameautofill.ValidColumn,
+		user.Table:              user.ValidColumn,
+		usernameautofill.Table:  usernameautofill.ValidColumn,
 	}
 	check, ok := checks[table]
 	if !ok {

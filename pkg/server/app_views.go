@@ -107,6 +107,8 @@ func (s *Server) viewIndexPage(c echo.Context) error {
 	for i := range events {
 		events[i].FrontendEventTime = fmt.Sprintf(events[i].EventTime.In(loc).Format("2006-01-02 03:04pm MST"))
 	}
+	uniqueUsernames, _ := s.eventStorage.ListUniqueEventUsernames(context.TODO())
+	uniqueEventNames, _ := s.eventStorage.ListUniqueEventNames(context.TODO())
 	return c.Render(http.StatusOK, "index", map[string]any{
 		"Filters": map[string]any{
 			"filterType":   qFilterType,
@@ -115,10 +117,12 @@ func (s *Server) viewIndexPage(c echo.Context) error {
 			"startTime":    qStart,
 			"endTime":      qEnd,
 		},
-		"Events":   events,
-		"Limited":  limited,
-		"Limit":    limit,
-		"Timezone": tz,
+		"Events":     events,
+		"Limited":    limited,
+		"Limit":      limit,
+		"Timezone":   tz,
+		"Usernames":  uniqueUsernames,
+		"EventNames": uniqueEventNames,
 	})
 }
 

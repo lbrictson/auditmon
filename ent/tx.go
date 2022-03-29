@@ -14,8 +14,12 @@ type Tx struct {
 	config
 	// Event is the client for interacting with the Event builders.
 	Event *EventClient
+	// EventNameAutofill is the client for interacting with the EventNameAutofill builders.
+	EventNameAutofill *EventNameAutofillClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
+	// UsernameAutofill is the client for interacting with the UsernameAutofill builders.
+	UsernameAutofill *UsernameAutofillClient
 
 	// lazily loaded.
 	client     *Client
@@ -152,7 +156,9 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Event = NewEventClient(tx.config)
+	tx.EventNameAutofill = NewEventNameAutofillClient(tx.config)
 	tx.User = NewUserClient(tx.config)
+	tx.UsernameAutofill = NewUsernameAutofillClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

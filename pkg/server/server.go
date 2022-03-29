@@ -97,5 +97,6 @@ func (s *Server) RunServer() {
 	// HTML components
 	components := e.Group("/component", s.frontendAuthenticationRequiredMiddleware)
 	components.GET("/preferences.html", s.componentPreferences)
+	components.GET("/filterby-datalist.html", s.componentRenderAutofill)
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%v", s.port)))
 }

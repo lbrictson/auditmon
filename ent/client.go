@@ -11,7 +11,9 @@ import (
 	"github.com/lbrictson/auditmon/ent/migrate"
 
 	"github.com/lbrictson/auditmon/ent/event"
+	"github.com/lbrictson/auditmon/ent/eventnameautofill"
 	"github.com/lbrictson/auditmon/ent/user"
+	"github.com/lbrictson/auditmon/ent/usernameautofill"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
@@ -24,8 +26,12 @@ type Client struct {
 	Schema *migrate.Schema
 	// Event is the client for interacting with the Event builders.
 	Event *EventClient
+	// EventNameAutofill is the client for interacting with the EventNameAutofill builders.
+	EventNameAutofill *EventNameAutofillClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
+	// UsernameAutofill is the client for interacting with the UsernameAutofill builders.
+	UsernameAutofill *UsernameAutofillClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -40,7 +46,9 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Event = NewEventClient(c.config)
+	c.EventNameAutofill = NewEventNameAutofillClient(c.config)
 	c.User = NewUserClient(c.config)
+	c.UsernameAutofill = NewUsernameAutofillClient(c.config)
 }
 
 // Open opens a database/sql.DB specified by the driver name and
@@ -72,10 +80,12 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:    ctx,
-		config: cfg,
-		Event:  NewEventClient(cfg),
-		User:   NewUserClient(cfg),
+		ctx:               ctx,
+		config:            cfg,
+		Event:             NewEventClient(cfg),
+		EventNameAutofill: NewEventNameAutofillClient(cfg),
+		User:              NewUserClient(cfg),
+		UsernameAutofill:  NewUsernameAutofillClient(cfg),
 	}, nil
 }
 
@@ -93,10 +103,12 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:    ctx,
-		config: cfg,
-		Event:  NewEventClient(cfg),
-		User:   NewUserClient(cfg),
+		ctx:               ctx,
+		config:            cfg,
+		Event:             NewEventClient(cfg),
+		EventNameAutofill: NewEventNameAutofillClient(cfg),
+		User:              NewUserClient(cfg),
+		UsernameAutofill:  NewUsernameAutofillClient(cfg),
 	}, nil
 }
 
@@ -127,7 +139,9 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	c.Event.Use(hooks...)
+	c.EventNameAutofill.Use(hooks...)
 	c.User.Use(hooks...)
+	c.UsernameAutofill.Use(hooks...)
 }
 
 // EventClient is a client for the Event schema.
@@ -220,6 +234,96 @@ func (c *EventClient) Hooks() []Hook {
 	return c.hooks.Event
 }
 
+// EventNameAutofillClient is a client for the EventNameAutofill schema.
+type EventNameAutofillClient struct {
+	config
+}
+
+// NewEventNameAutofillClient returns a client for the EventNameAutofill from the given config.
+func NewEventNameAutofillClient(c config) *EventNameAutofillClient {
+	return &EventNameAutofillClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `eventnameautofill.Hooks(f(g(h())))`.
+func (c *EventNameAutofillClient) Use(hooks ...Hook) {
+	c.hooks.EventNameAutofill = append(c.hooks.EventNameAutofill, hooks...)
+}
+
+// Create returns a create builder for EventNameAutofill.
+func (c *EventNameAutofillClient) Create() *EventNameAutofillCreate {
+	mutation := newEventNameAutofillMutation(c.config, OpCreate)
+	return &EventNameAutofillCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of EventNameAutofill entities.
+func (c *EventNameAutofillClient) CreateBulk(builders ...*EventNameAutofillCreate) *EventNameAutofillCreateBulk {
+	return &EventNameAutofillCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for EventNameAutofill.
+func (c *EventNameAutofillClient) Update() *EventNameAutofillUpdate {
+	mutation := newEventNameAutofillMutation(c.config, OpUpdate)
+	return &EventNameAutofillUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *EventNameAutofillClient) UpdateOne(ena *EventNameAutofill) *EventNameAutofillUpdateOne {
+	mutation := newEventNameAutofillMutation(c.config, OpUpdateOne, withEventNameAutofill(ena))
+	return &EventNameAutofillUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *EventNameAutofillClient) UpdateOneID(id int) *EventNameAutofillUpdateOne {
+	mutation := newEventNameAutofillMutation(c.config, OpUpdateOne, withEventNameAutofillID(id))
+	return &EventNameAutofillUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for EventNameAutofill.
+func (c *EventNameAutofillClient) Delete() *EventNameAutofillDelete {
+	mutation := newEventNameAutofillMutation(c.config, OpDelete)
+	return &EventNameAutofillDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *EventNameAutofillClient) DeleteOne(ena *EventNameAutofill) *EventNameAutofillDeleteOne {
+	return c.DeleteOneID(ena.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *EventNameAutofillClient) DeleteOneID(id int) *EventNameAutofillDeleteOne {
+	builder := c.Delete().Where(eventnameautofill.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &EventNameAutofillDeleteOne{builder}
+}
+
+// Query returns a query builder for EventNameAutofill.
+func (c *EventNameAutofillClient) Query() *EventNameAutofillQuery {
+	return &EventNameAutofillQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a EventNameAutofill entity by its id.
+func (c *EventNameAutofillClient) Get(ctx context.Context, id int) (*EventNameAutofill, error) {
+	return c.Query().Where(eventnameautofill.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *EventNameAutofillClient) GetX(ctx context.Context, id int) *EventNameAutofill {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *EventNameAutofillClient) Hooks() []Hook {
+	return c.hooks.EventNameAutofill
+}
+
 // UserClient is a client for the User schema.
 type UserClient struct {
 	config
@@ -308,4 +412,94 @@ func (c *UserClient) GetX(ctx context.Context, id uuid.UUID) *User {
 // Hooks returns the client hooks.
 func (c *UserClient) Hooks() []Hook {
 	return c.hooks.User
+}
+
+// UsernameAutofillClient is a client for the UsernameAutofill schema.
+type UsernameAutofillClient struct {
+	config
+}
+
+// NewUsernameAutofillClient returns a client for the UsernameAutofill from the given config.
+func NewUsernameAutofillClient(c config) *UsernameAutofillClient {
+	return &UsernameAutofillClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `usernameautofill.Hooks(f(g(h())))`.
+func (c *UsernameAutofillClient) Use(hooks ...Hook) {
+	c.hooks.UsernameAutofill = append(c.hooks.UsernameAutofill, hooks...)
+}
+
+// Create returns a create builder for UsernameAutofill.
+func (c *UsernameAutofillClient) Create() *UsernameAutofillCreate {
+	mutation := newUsernameAutofillMutation(c.config, OpCreate)
+	return &UsernameAutofillCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of UsernameAutofill entities.
+func (c *UsernameAutofillClient) CreateBulk(builders ...*UsernameAutofillCreate) *UsernameAutofillCreateBulk {
+	return &UsernameAutofillCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for UsernameAutofill.
+func (c *UsernameAutofillClient) Update() *UsernameAutofillUpdate {
+	mutation := newUsernameAutofillMutation(c.config, OpUpdate)
+	return &UsernameAutofillUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *UsernameAutofillClient) UpdateOne(ua *UsernameAutofill) *UsernameAutofillUpdateOne {
+	mutation := newUsernameAutofillMutation(c.config, OpUpdateOne, withUsernameAutofill(ua))
+	return &UsernameAutofillUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *UsernameAutofillClient) UpdateOneID(id int) *UsernameAutofillUpdateOne {
+	mutation := newUsernameAutofillMutation(c.config, OpUpdateOne, withUsernameAutofillID(id))
+	return &UsernameAutofillUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for UsernameAutofill.
+func (c *UsernameAutofillClient) Delete() *UsernameAutofillDelete {
+	mutation := newUsernameAutofillMutation(c.config, OpDelete)
+	return &UsernameAutofillDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *UsernameAutofillClient) DeleteOne(ua *UsernameAutofill) *UsernameAutofillDeleteOne {
+	return c.DeleteOneID(ua.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *UsernameAutofillClient) DeleteOneID(id int) *UsernameAutofillDeleteOne {
+	builder := c.Delete().Where(usernameautofill.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &UsernameAutofillDeleteOne{builder}
+}
+
+// Query returns a query builder for UsernameAutofill.
+func (c *UsernameAutofillClient) Query() *UsernameAutofillQuery {
+	return &UsernameAutofillQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a UsernameAutofill entity by its id.
+func (c *UsernameAutofillClient) Get(ctx context.Context, id int) (*UsernameAutofill, error) {
+	return c.Query().Where(usernameautofill.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *UsernameAutofillClient) GetX(ctx context.Context, id int) *UsernameAutofill {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *UsernameAutofillClient) Hooks() []Hook {
+	return c.hooks.UsernameAutofill
 }

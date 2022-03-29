@@ -3,6 +3,8 @@ package schema
 import (
 	"time"
 
+	"entgo.io/ent/schema/index"
+
 	"entgo.io/ent"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
@@ -11,6 +13,13 @@ import (
 // Event holds the schema definition for the Event entity.
 type Event struct {
 	ent.Schema
+}
+
+func (Event) Indexes() []ent.Index {
+	return []ent.Index{
+		// non-unique index.
+		index.Fields("event_time", "event_name", "username"),
+	}
 }
 
 // Fields of the Event.

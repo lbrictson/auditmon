@@ -75,11 +75,16 @@ func convertEntEventToModelEvent(input ent.Event) models.Event {
 // and a retry will be attempted later.  An error is only returned if the insert failed as well as writing the file to
 // disk.  This could happen because the disk is full or other IO errors
 func (s *EventStore) Create(ctx context.Context, events []models.Event) error {
+	uniqueUsernames := make(map[string]bool)
+	uniqueEventNames := make(map[string]bool)
 	dbTime, _ := time.LoadLocation("UTC")
 	t := time.Time{}
 	// Bulk write, much more performant
 	bulk := make([]*ent.EventCreate, len(events))
 	for i := range events {
+		// Add unique users to the username autofill database
+		uniqueUsernames[events[i].Username] = true
+		uniqueEventNames[events[i].EventName] = true
 		if events[i].EventData == nil {
 			events[i].EventData = make(map[string]interface{})
 		}
@@ -117,6 +122,16 @@ func (s *EventStore) Create(ctx context.Context, events []models.Event) error {
 			return err
 		}
 	}
+	userNamesToStore := []string{}
+	eventNamesToStore := []string{}
+	for k, _ := range uniqueUsernames {
+		userNamesToStore = append(userNamesToStore, k)
+	}
+	for k, _ := range uniqueEventNames {
+		eventNamesToStore = append(eventNamesToStore, k)
+	}
+	s.saveUniqueUsernames(ctx, userNamesToStore)
+	s.saveUniqueEventNames(ctx, eventNamesToStore)
 	return nil
 }
 
@@ -260,4 +275,48 @@ func (s EventStore) runEventRetryTask() {
 			}
 		}
 	}
+}
+
+// listUniqueEventUsernames gets all the unique usernames from the database, this can probably grow out of control
+// someday and we should deal with that
+func (s *EventStore) ListUniqueEventUsernames(ctx context.Context) ([]models.UsernameAutoFillValue, error) {
+	var names []models.UsernameAutoFillValue
+	entUsernames, err := s.client.UsernameAutofill.Query().All(ctx)
+	if err != nil {
+		return names, err
+	}
+	for _, x := range entUsernames {
+		names = append(names, models.UsernameAutoFillValue{Username: x.Username})
+	}
+	return names, nil
+}
+
+func (s *EventStore) saveUniqueUsernames(ctx context.Context, usernames []string) {
+	bulk := make([]*ent.UsernameAutofillCreate, len(usernames))
+	for i, name := range usernames {
+		bulk[i] = s.client.UsernameAutofill.Create().SetUsername(name)
+	}
+	s.client.UsernameAutofill.CreateBulk(bulk...).Save(ctx)
+	return
+}
+
+func (s *EventStore) ListUniqueEventNames(ctx context.Context) ([]models.EventNameAutoFillValue, error) {
+	var names []models.EventNameAutoFillValue
+	entEventNames, err := s.client.EventNameAutofill.Query().All(ctx)
+	if err != nil {
+		return names, err
+	}
+	for _, x := range entEventNames {
+		names = append(names, models.EventNameAutoFillValue{Name: x.EventName})
+	}
+	return names, nil
+}
+
+func (s *EventStore) saveUniqueEventNames(ctx context.Context, eventNames []string) {
+	bulk := make([]*ent.EventNameAutofillCreate, len(eventNames))
+	for i, name := range eventNames {
+		bulk[i] = s.client.EventNameAutofill.Create().SetEventName(name)
+	}
+	s.client.EventNameAutofill.CreateBulk(bulk...).Save(ctx)
+	return
 }

@@ -11,8 +11,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/lbrictson/auditmon/ent/event"
+	"github.com/lbrictson/auditmon/ent/eventnameautofill"
 	"github.com/lbrictson/auditmon/ent/predicate"
 	"github.com/lbrictson/auditmon/ent/user"
+	"github.com/lbrictson/auditmon/ent/usernameautofill"
 
 	"entgo.io/ent"
 )
@@ -26,8 +28,10 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeEvent = "Event"
-	TypeUser  = "User"
+	TypeEvent             = "Event"
+	TypeEventNameAutofill = "EventNameAutofill"
+	TypeUser              = "User"
+	TypeUsernameAutofill  = "UsernameAutofill"
 )
 
 // EventMutation represents an operation that mutates the Event nodes in the graph.
@@ -777,6 +781,317 @@ func (m *EventMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *EventMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown Event edge %s", name)
+}
+
+// EventNameAutofillMutation represents an operation that mutates the EventNameAutofill nodes in the graph.
+type EventNameAutofillMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *int
+	eventName     *string
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*EventNameAutofill, error)
+	predicates    []predicate.EventNameAutofill
+}
+
+var _ ent.Mutation = (*EventNameAutofillMutation)(nil)
+
+// eventnameautofillOption allows management of the mutation configuration using functional options.
+type eventnameautofillOption func(*EventNameAutofillMutation)
+
+// newEventNameAutofillMutation creates new mutation for the EventNameAutofill entity.
+func newEventNameAutofillMutation(c config, op Op, opts ...eventnameautofillOption) *EventNameAutofillMutation {
+	m := &EventNameAutofillMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeEventNameAutofill,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withEventNameAutofillID sets the ID field of the mutation.
+func withEventNameAutofillID(id int) eventnameautofillOption {
+	return func(m *EventNameAutofillMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *EventNameAutofill
+		)
+		m.oldValue = func(ctx context.Context) (*EventNameAutofill, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().EventNameAutofill.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withEventNameAutofill sets the old EventNameAutofill of the mutation.
+func withEventNameAutofill(node *EventNameAutofill) eventnameautofillOption {
+	return func(m *EventNameAutofillMutation) {
+		m.oldValue = func(context.Context) (*EventNameAutofill, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m EventNameAutofillMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m EventNameAutofillMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *EventNameAutofillMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *EventNameAutofillMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().EventNameAutofill.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetEventName sets the "eventName" field.
+func (m *EventNameAutofillMutation) SetEventName(s string) {
+	m.eventName = &s
+}
+
+// EventName returns the value of the "eventName" field in the mutation.
+func (m *EventNameAutofillMutation) EventName() (r string, exists bool) {
+	v := m.eventName
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEventName returns the old "eventName" field's value of the EventNameAutofill entity.
+// If the EventNameAutofill object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EventNameAutofillMutation) OldEventName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldEventName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldEventName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEventName: %w", err)
+	}
+	return oldValue.EventName, nil
+}
+
+// ResetEventName resets all changes to the "eventName" field.
+func (m *EventNameAutofillMutation) ResetEventName() {
+	m.eventName = nil
+}
+
+// Where appends a list predicates to the EventNameAutofillMutation builder.
+func (m *EventNameAutofillMutation) Where(ps ...predicate.EventNameAutofill) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// Op returns the operation name.
+func (m *EventNameAutofillMutation) Op() Op {
+	return m.op
+}
+
+// Type returns the node type of this mutation (EventNameAutofill).
+func (m *EventNameAutofillMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *EventNameAutofillMutation) Fields() []string {
+	fields := make([]string, 0, 1)
+	if m.eventName != nil {
+		fields = append(fields, eventnameautofill.FieldEventName)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *EventNameAutofillMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case eventnameautofill.FieldEventName:
+		return m.EventName()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *EventNameAutofillMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case eventnameautofill.FieldEventName:
+		return m.OldEventName(ctx)
+	}
+	return nil, fmt.Errorf("unknown EventNameAutofill field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *EventNameAutofillMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case eventnameautofill.FieldEventName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetEventName(v)
+		return nil
+	}
+	return fmt.Errorf("unknown EventNameAutofill field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *EventNameAutofillMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *EventNameAutofillMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *EventNameAutofillMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown EventNameAutofill numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *EventNameAutofillMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *EventNameAutofillMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *EventNameAutofillMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown EventNameAutofill nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *EventNameAutofillMutation) ResetField(name string) error {
+	switch name {
+	case eventnameautofill.FieldEventName:
+		m.ResetEventName()
+		return nil
+	}
+	return fmt.Errorf("unknown EventNameAutofill field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *EventNameAutofillMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *EventNameAutofillMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *EventNameAutofillMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *EventNameAutofillMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *EventNameAutofillMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *EventNameAutofillMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *EventNameAutofillMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown EventNameAutofill unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *EventNameAutofillMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown EventNameAutofill edge %s", name)
 }
 
 // UserMutation represents an operation that mutates the User nodes in the graph.
@@ -1965,4 +2280,315 @@ func (m *UserMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *UserMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown User edge %s", name)
+}
+
+// UsernameAutofillMutation represents an operation that mutates the UsernameAutofill nodes in the graph.
+type UsernameAutofillMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *int
+	username      *string
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*UsernameAutofill, error)
+	predicates    []predicate.UsernameAutofill
+}
+
+var _ ent.Mutation = (*UsernameAutofillMutation)(nil)
+
+// usernameautofillOption allows management of the mutation configuration using functional options.
+type usernameautofillOption func(*UsernameAutofillMutation)
+
+// newUsernameAutofillMutation creates new mutation for the UsernameAutofill entity.
+func newUsernameAutofillMutation(c config, op Op, opts ...usernameautofillOption) *UsernameAutofillMutation {
+	m := &UsernameAutofillMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeUsernameAutofill,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withUsernameAutofillID sets the ID field of the mutation.
+func withUsernameAutofillID(id int) usernameautofillOption {
+	return func(m *UsernameAutofillMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *UsernameAutofill
+		)
+		m.oldValue = func(ctx context.Context) (*UsernameAutofill, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().UsernameAutofill.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withUsernameAutofill sets the old UsernameAutofill of the mutation.
+func withUsernameAutofill(node *UsernameAutofill) usernameautofillOption {
+	return func(m *UsernameAutofillMutation) {
+		m.oldValue = func(context.Context) (*UsernameAutofill, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m UsernameAutofillMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m UsernameAutofillMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *UsernameAutofillMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *UsernameAutofillMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().UsernameAutofill.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetUsername sets the "username" field.
+func (m *UsernameAutofillMutation) SetUsername(s string) {
+	m.username = &s
+}
+
+// Username returns the value of the "username" field in the mutation.
+func (m *UsernameAutofillMutation) Username() (r string, exists bool) {
+	v := m.username
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUsername returns the old "username" field's value of the UsernameAutofill entity.
+// If the UsernameAutofill object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsernameAutofillMutation) OldUsername(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUsername is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUsername requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUsername: %w", err)
+	}
+	return oldValue.Username, nil
+}
+
+// ResetUsername resets all changes to the "username" field.
+func (m *UsernameAutofillMutation) ResetUsername() {
+	m.username = nil
+}
+
+// Where appends a list predicates to the UsernameAutofillMutation builder.
+func (m *UsernameAutofillMutation) Where(ps ...predicate.UsernameAutofill) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// Op returns the operation name.
+func (m *UsernameAutofillMutation) Op() Op {
+	return m.op
+}
+
+// Type returns the node type of this mutation (UsernameAutofill).
+func (m *UsernameAutofillMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *UsernameAutofillMutation) Fields() []string {
+	fields := make([]string, 0, 1)
+	if m.username != nil {
+		fields = append(fields, usernameautofill.FieldUsername)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *UsernameAutofillMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case usernameautofill.FieldUsername:
+		return m.Username()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *UsernameAutofillMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case usernameautofill.FieldUsername:
+		return m.OldUsername(ctx)
+	}
+	return nil, fmt.Errorf("unknown UsernameAutofill field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *UsernameAutofillMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case usernameautofill.FieldUsername:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUsername(v)
+		return nil
+	}
+	return fmt.Errorf("unknown UsernameAutofill field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *UsernameAutofillMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *UsernameAutofillMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *UsernameAutofillMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown UsernameAutofill numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *UsernameAutofillMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *UsernameAutofillMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *UsernameAutofillMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown UsernameAutofill nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *UsernameAutofillMutation) ResetField(name string) error {
+	switch name {
+	case usernameautofill.FieldUsername:
+		m.ResetUsername()
+		return nil
+	}
+	return fmt.Errorf("unknown UsernameAutofill field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *UsernameAutofillMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *UsernameAutofillMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *UsernameAutofillMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *UsernameAutofillMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *UsernameAutofillMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *UsernameAutofillMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *UsernameAutofillMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown UsernameAutofill unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *UsernameAutofillMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown UsernameAutofill edge %s", name)
 }

@@ -8,14 +8,12 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql/schema"
-
+	"github.com/brianvoe/gofakeit/v6"
+	"github.com/google/uuid"
 	"github.com/lbrictson/auditmon/ent"
 	"github.com/lbrictson/auditmon/pkg/configuration"
-	"github.com/lbrictson/auditmon/pkg/storage"
-
-	"github.com/google/uuid"
-
 	"github.com/lbrictson/auditmon/pkg/models"
+	"github.com/lbrictson/auditmon/pkg/storage"
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -59,9 +57,10 @@ func main() {
 		events := []models.Event{}
 		for y := 1; y < seedCount; y++ {
 			events = append(events, models.Event{
-				EventName:       seedEventNames[r.Intn(len(seedEventNames))],
-				EventTime:       time.Now().Add(-1 * time.Duration(r.Intn(1000)) * time.Minute),
-				Username:        seedUsers[r.Intn(len(seedUsers))],
+				EventName: seedEventNames[r.Intn(len(seedEventNames))],
+				EventTime: time.Now().Add(-1 * time.Duration(r.Intn(1000)) * time.Minute),
+				//Username:        seedUsers[r.Intn(len(seedUsers))],
+				Username:        gofakeit.Username(),
 				Resource:        seedResources[r.Intn(len(seedResources))],
 				EventSource:     "auditmon_seed_events",
 				SourceIPAddress: seedIPs[r.Intn(len(seedIPs))],

@@ -28,3 +28,9 @@ func (s *Server) componentPreferences(c echo.Context) error {
 		"Data": data,
 	})
 }
+
+func (s *Server) componentRenderAutofill(c echo.Context) error {
+	filler := c.QueryParam("filterBy")
+	return c.Render(http.StatusOK, "autofill_values", map[string]any{
+		"Target": filler})
+}
